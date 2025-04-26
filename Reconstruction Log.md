@@ -2,7 +2,11 @@
 
 > 谢谢你，AI大人
 >
-> *AI大人包括 DeepSeek R1，V3；OpenAI GPT-4o，o1，o3，o3-mini，o4-mini；Google Gemini 2.5 Pro；Claude 3.5 Sonnet, 3.7 Sonnet, 3.7 Sonnet Thinking*
+> AI大人包括:
+> - DeepSeek R1，V3；
+> - OpenAI GPT-4o，o1，o3，o3-mini，o4-mini；
+> - Google Gemini 2.5 Pro；
+> - Claude 3.5 Sonnet, 3.7 Sonnet, 3.7 Sonnet Thinking
 >
 > 已向AI大人投降
 > 
@@ -29,7 +33,6 @@
         - [3.3 FNO2d类（傅里叶神经算子）](#33-fno2d类傅里叶神经算子)
       - [4. 训练与推理过程](#4-训练与推理过程)
         - [4.1 训练过程](#41-训练过程)
-          - [无物理梯度模型:](#无物理梯度模型)
         - [4.2 推理过程（采样）](#42-推理过程采样)
         - [4.3 批处理机制](#43-批处理机制)
       - [5. 技术细节与实现要点](#5-技术细节与实现要点)
@@ -39,6 +42,27 @@
         - [5.4 循环填充](#54-循环填充)
       - [6. 总结](#6-总结)
         - [模型关键组件说明](#模型关键组件说明)
+  - [Diffusion-based Fluid Super-resolution 数据集模块详细文档](#diffusion-based-fluid-super-resolution-数据集模块详细文档)
+    - [1. 模块总体架构](#1-模块总体架构)
+      - [核心功能组件](#核心功能组件)
+    - [2. 流体数据处理的特殊之处](#2-流体数据处理的特殊之处)
+      - [2.1 时序连续性处理](#21-时序连续性处理)
+      - [2.2 多分辨率数据处理](#22-多分辨率数据处理)
+      - [2.3 多尺度时间处理](#23-多尺度时间处理)
+    - [3. 数据预处理与归一化](#3-数据预处理与归一化)
+      - [3.1 数据标准化](#31-数据标准化)
+      - [3.2 扩散模型专用变换](#32-扩散模型专用变换)
+    - [4. 时间序列数据处理机制](#4-时间序列数据处理机制)
+      - [4.1 多帧数据集成](#41-多帧数据集成)
+      - [4.2 时间跨步处理逻辑](#42-时间跨步处理逻辑)
+    - [5. 性能优化设计](#5-性能优化设计)
+      - [5.1 智能缓存机制](#51-智能缓存机制)
+      - [5.2 内存映射加载](#52-内存映射加载)
+    - [6. 扩散模型训练中的数据流](#6-扩散模型训练中的数据流)
+    - [7. 物理扩散模型的数据特点](#7-物理扩散模型的数据特点)
+      - [7.1 与传统图像超分辨率的区别](#71-与传统图像超分辨率的区别)
+      - [7.2 统计特性保持](#72-统计特性保持)
+    - [8. 结论](#8-结论)
   - [`Example/runners`以及`Example/train_ddpm/runners`](#examplerunners以及exampletrain_ddpmrunners)
     - [训练的`Example/train_ddpm/runners`](#训练的exampletrain_ddpmrunners)
       - [1. 模块结构与设计哲学](#1-模块结构与设计哲学)
@@ -124,6 +148,24 @@
         - [8.2 物理引导参数调优](#82-物理引导参数调优)
       - [9. 总结](#9-总结)
   - [训练和推理中的`main.py`以及相关的配置文件](#训练和推理中的mainpy以及相关的配置文件)
+    - [1. 系统总体架构](#1-系统总体架构)
+    - [2. 训练过程详解](#2-训练过程详解)
+      - [2.1 训练流程](#21-训练流程)
+      - [2.2 训练配置文件解析](#22-训练配置文件解析)
+      - [2.3 训练参数解析](#23-训练参数解析)
+    - [3. 推理过程详解](#3-推理过程详解)
+      - [3.1 推理流程](#31-推理流程)
+      - [3.2 推理配置文件解析](#32-推理配置文件解析)
+      - [3.3 推理参数解析](#33-推理参数解析)
+    - [4. 物理引导的实现机制](#4-物理引导的实现机制)
+      - [4.1 物理引导策略](#41-物理引导策略)
+      - [4.2 稀疏重构与数据处理](#42-稀疏重构与数据处理)
+    - [5. 工作流程综合分析](#5-工作流程综合分析)
+    - [6. 系统优势与特性](#6-系统优势与特性)
+    - [7. 使用示例](#7-使用示例)
+      - [训练模型](#训练模型)
+      - [推理重构](#推理重构)
+    - [总结](#总结-1)
 
 这两个部分其实是一样的，都是关于`ConditionalModel`的实现，都是基于论文"A physics-informed diffusion model for high-fidelity flow field reconstruction"的实现。这是重建代码最核心的内容
 
@@ -466,7 +508,7 @@ class FNO2d(nn.Module):
 
 ##### 4.1 训练过程
 
-###### 无物理梯度模型:
+无物理梯度模型:
 1. 对真实流场数据添加不同时间步的噪声
 2. 批量输入噪声数据和时间步到`Model`
 3. 模型预测噪声或原始数据
@@ -629,6 +671,292 @@ flowchart TD
    - 为模型提供物理约束，提高流场重建的精确性
 
 整个架构基于U-Net设计，特别适合扩散模型的去噪过程，并通过物理梯度实现了对流体仿真的特定优化。
+
+## Diffusion-based Fluid Super-resolution 数据集模块详细文档
+
+本文档详细分析了`datasets`文件夹在基于物理的扩散模型训练过程中的作用、特点及工作流程。该模块专为流体超分辨率任务设计，具有多种特殊处理机制。
+
+### 1. 模块总体架构
+
+`datasets`文件夹包含两个主要文件：
+
+- **`__init__.py`**：提供数据集获取和数据变换的核心功能
+- **`utils.py`**：包含辅助函数和流体数据专用的数据集类
+
+#### 核心功能组件
+
+```mermaid
+graph TD
+    A[datasets 模块] --> B[数据获取]
+    A --> C[数据转换]
+    A --> D[流体数据特化处理]
+
+    B --> B1[get_dataset 函数]
+    B --> B2[自定义数据集类]
+    
+    C --> C1[data_transform]
+    C --> C2[inverse_data_transform]
+    C --> C3[data_transform_fno]
+    
+    D --> D1[data_blurring]
+    D --> D2[data_preprocessing]
+    D --> D3[normalize_array/unnormalize_array]
+
+    B2 --> E1[FNO_Dataset]
+    B2 --> E2[KMFlowDataset]
+    B2 --> E3[KMFlowTensorDataset]
+```
+
+### 2. 流体数据处理的特殊之处
+
+#### 2.1 时序连续性处理
+
+与常规图像数据集不同，流体数据具有强时序连续性。`KMFlowDataset`和`KMFlowTensorDataset`类通过同时读取连续的三个时间步骤的数据，来捕捉流体动态演化特性：
+
+```python
+def __getitem__(self, idx):
+    # ...
+    frame0 = self.preprocess_data(self.all_data[seed, frame_idx])
+    frame1 = self.preprocess_data(self.all_data[seed, frame_idx+1])
+    frame2 = self.preprocess_data(self.all_data[seed, frame_idx+2])
+
+    frame = np.concatenate((frame0[None, ...], frame1[None, ...], frame2[None, ...]), axis=0)
+    # ...
+    return frame
+```
+
+这种设计使得模型能够学习流体的时间演化规律，而非仅仅处理单帧静态图像。在物理扩散模型中，这种时序信息允许模型学习流体的物理动力学特性，实现更准确的超分辨率重建。
+
+#### 2.2 多分辨率数据处理
+
+模块提供了专门的函数处理不同分辨率的数据，实现从低分辨率到高分辨率的映射：
+
+```python
+def data_blurring(data_sample, us_size):
+    # 将高分辨率数据先降采样再上采样，模拟低分辨率效果
+    ds_size = 16
+    resample_method = Image.NEAREST
+    # ...处理逻辑...
+    return torch.from_numpy(x_array_blur)
+
+def data_preprocessing(target, Image_Size):
+    # 将128x128分辨率的目标数据转换为低分辨率输入
+    img = torch.zeros(target.size(0), target.size(1), Image_Size, Image_Size)
+    # ...处理逻辑...
+    return img, output_target
+```
+
+这些函数实现了物理扩散模型训练所需的低分辨率-高分辨率数据对。
+
+#### 2.3 多尺度时间处理
+
+`KMFlowDataset`引入了双层时间结构：
+
+```python
+def __init__(self, data_dir, resolution=256, max_cache_len=3200,
+             inner_steps=32, outer_steps=10, train_ratio=0.9, test=False,
+             stat_path=None):
+    # ...
+    self.inner_steps = inner_steps
+    self.outer_steps = outer_steps
+    # ...
+```
+
+这反映了流体模拟中的多尺度时间特性：
+- `outer_steps`：对应较大时间尺度的变化
+- `inner_steps`：对应每个大时间步内的细粒度演化
+
+此设计允许模型同时学习流体动力学的长时间和短时间行为特征。
+
+### 3. 数据预处理与归一化
+
+#### 3.1 数据标准化
+
+流体数据通常具有复杂的分布特性，模块采用统计学方法进行标准化：
+
+```python
+def prepare_data(self):
+    # 加载所有训练数据并计算统计特性
+    self.scaler = StandardScaler()
+    for data_dir in tqdm(self.fname_lst):
+        for i in range(self.outer_steps):
+            for j in range(0, self.inner_steps, 4):
+                fname = os.path.join(data_dir, f'sol_t{i}_step{j}.npy')
+                data = np.load(fname, mmap_mode='r')[::4, ::4]
+                data = data.reshape(-1, 1)
+                self.scaler.partial_fit(data)
+                del data
+```
+
+这种基于整个训练集计算均值和标准差的方法，确保了数据分布的一致性，有助于模型的收敛。
+
+#### 3.2 扩散模型专用变换
+
+模块提供了适合扩散模型的特殊数据变换函数：
+
+```python
+def data_transform(config, X):
+    if config.data.uniform_dequantization:
+        X = X / 256.0 * 255.0 + torch.rand_like(X) / 256.0
+    if config.data.gaussian_dequantization:
+        X = X + torch.randn_like(X) * 0.01
+
+    if config.data.rescaled:
+        X = 2 * X - 1.0
+    elif config.data.logit_transform:
+        X = logit_transform(X)
+    # ...
+    return X
+
+def inverse_data_transform(config, X):
+    # ...逆变换过程...
+    return torch.clamp(X, 0.0, 1.0)
+```
+
+这些变换函数确保数据符合扩散模型的需求：
+1. `rescaled`选项将数据缩放到[-1,1]范围，适合大多数扩散模型
+2. `logit_transform`对数据进行logit变换，有助于处理边界值
+3. 反向变换函数确保生成的数据在合理范围内
+
+### 4. 时间序列数据处理机制
+
+#### 4.1 多帧数据集成
+
+模块明确使用前几个时间步的数据来训练模型，这是基于物理的流体超分辨率的关键特性：
+
+```mermaid
+graph LR
+    A[时间步 t] --> D[数据样本]
+    B[时间步 t+1] --> D
+    C[时间步 t+2] --> D
+    D --> E[训练模型]
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+通过连续三个时间步的数据集成，模型能够学习流体的时空演化模式，这对于准确预测流体行为至关重要。
+
+#### 4.2 时间跨步处理逻辑
+
+`KMFlowDataset`类中的复杂时间索引处理逻辑确保了连续性处理：
+
+```python
+if frame_idx % self.inner_steps == 31:
+    inner_step = frame_idx % self.inner_steps
+    outer_step = frame_idx // self.inner_steps
+    next_outer_step = outer_step + 1
+    next_next_outer_step = next_outer_step
+    next_inner_step = 0
+    next_next_inner_step = 1
+elif frame_idx % self.inner_steps == 30:
+    # ...处理跨outer_step边界情况...
+```
+
+这种设计处理了内部步骤和外部步骤之间的边界条件，确保数据的连续性，即使在不同模拟批次的边界处。
+
+### 5. 性能优化设计
+
+#### 5.1 智能缓存机制
+
+为提高数据加载效率，实现了智能缓存系统：
+
+```python
+def __getitem__(self, idx):
+    # ...
+    id = f'seed{seed}_t{outer_step}_step{inner_step}'
+
+    if id in self.cache.keys():
+        return self.cache[id]
+    else:
+        # ...加载数据...
+        self.cache[id] = frame
+
+        if len(self.cache) > self.max_cache_len:
+            self.cache.pop(np.random.choice(self.cache.keys()))
+        return frame
+```
+
+该缓存系统通过以下方式优化性能：
+1. 避免重复加载相同数据
+2. 设置最大缓存容量，防止内存溢出
+3. 采用随机替换策略管理缓存
+
+#### 5.2 内存映射加载
+
+对于大型流体数据集，采用内存映射方式加载，减少内存占用：
+
+```python
+fname0 = os.path.join(data_dir, f'sol_t{outer_step}_step{inner_step}.npy')
+frame0 = np.load(fname0, mmap_mode='r')
+```
+
+这种方式允许系统仅加载实际需要的数据部分，特别适合处理大规模流体模拟数据集。
+
+### 6. 扩散模型训练中的数据流
+
+完整的数据处理流程如下：
+
+```mermaid
+flowchart TD
+    A[原始流体数据] --> B{数据集切分}
+    B -->|训练集| C[训练数据]
+    B -->|测试集| D[测试数据]
+    
+    C --> E[计算数据统计特性]
+    E --> F[标准化处理]
+    
+    F --> G[构建时序样本<br>t, t+1, t+2]
+    
+    G --> H[数据变换<br>data_transform]
+    H --> I[输入扩散模型训练]
+    
+    I --> J[生成样本]
+    J --> K[反向数据变换<br>inverse_data_transform]
+    
+    L[低分辨率输入] --> M[模糊处理<br>data_blurring]
+    M --> N[与高分辨率标签配对]
+    N --> I
+    
+    style I fill:#f96,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+### 7. 物理扩散模型的数据特点
+
+#### 7.1 与传统图像超分辨率的区别
+
+与传统图像超分辨不同，流体超分辨率需要考虑物理守恒定律和时间连续性：
+
+1. **物理约束保持**：数据处理设计确保物理特性（如流体密度、动量守恒）得以保留
+2. **时序相关性**：通过连续三帧数据的使用，捕捉流体的动态演化特性
+3. **多尺度建模**：通过内部步骤和外部步骤的设计，覆盖不同时间尺度的流体行为
+
+#### 7.2 统计特性保持
+
+流体数据标准化过程不仅仅是为了模型训练稳定性，更是为了保持流体统计特性：
+
+```python
+def preprocess_data(self, data):
+    s = data.shape[0]
+    sub = int(s // self.resolution)
+    data = data[::sub, ::sub]
+    data = self.scaler.transform(data.reshape(-1, 1)).reshape((self.resolution, self.resolution))
+    return data
+```
+
+这种处理方式保证了不同分辨率下流体统计特性的一致性，这对于物理模拟的准确性至关重要。
+
+### 8. 结论
+
+`datasets`模块在基于物理的扩散模型流体超分辨率训练中扮演关键角色：
+
+1. **特殊设计**：专门针对流体数据的时序性、物理守恒和多尺度特性进行了优化
+2. **时序处理**：明确使用多个连续时间步的数据，捕捉流体演化规律
+3. **性能优化**：通过缓存机制和内存映射技术，高效处理大型流体模拟数据集
+4. **数据变换**：提供适合扩散模型的特殊变换函数，确保模型训练稳定性和生成质量
+
+这些特性使得该模块成为基于物理原理的流体超分辨率扩散模型训练的理想选择，能够有效捕捉流体动力学的复杂行为，实现高质量的流体超分辨率重建。
 
 ## `Example/runners`以及`Example/train_ddpm/runners`
 
@@ -1122,6 +1450,8 @@ flowchart TD
 1. 使用 `load_recons_data()` 加载参考和低分辨率数据
 2. 创建 `StdScaler` 确保数据在适当的数值范围内
 3. 为批处理创建 `torch.utils.data.DataLoader`
+
+注意，这里也是使用了当前时间以及未来两个时间的涡量数据来进行训练和推理，这种设计确保了模型能够捕捉到流体的时序特性。
 
 ##### 3.2 扩散采样过程
 
@@ -2019,3 +2349,291 @@ functions文件夹提供了基于物理的扩散模型推理过程中最核心�
 
 ## 训练和推理中的`main.py`以及相关的配置文件
 
+在这个基于物理的流体超分辨率扩散模型系统中，训练和推理过程通过不同的`main.py`文件和配置文件协同工作，整合了扩散模型与流体动力学的物理约束。本文档将详细解析系统架构、工作流程以及实现中的关键特性。
+
+### 1. 系统总体架构
+
+该系统主要由两部分组成：训练模块和推理模块。训练模块负责学习从低分辨率流体场到高分辨率流体场的映射，而推理模块则利用训练好的模型，结合物理约束生成高质量的高分辨率流体场。
+
+```mermaid
+graph TD
+    subgraph "训练阶段"
+        TD[训练数据] --> TM[训练模块]
+        TC[训练配置文件] --> TM
+        TM --> PM[预训练模型]
+    end
+    
+    subgraph "推理阶段"
+        LD[低分辨率数据] --> IM[推理模块]
+        IC[推理配置文件] --> IM
+        PM --> IM
+        PK[物理知识] -.-> IM
+        IM --> HR[高分辨率结果]
+    end
+```
+
+### 2. 训练过程详解
+
+训练过程由`/Example/train_ddpm/main.py`文件控制，支持两种不同类型的扩散模型：简单扩散模型和条件扩散模型。
+
+#### 2.1 训练流程
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant MainPy as train_ddpm/main.py
+    participant Config as 配置文件
+    participant Runner as Diffusion/ConditionalDiffusion
+    participant Model as U-Net模型
+    
+    User->>MainPy: 执行训练命令
+    MainPy->>Config: 解析配置文件
+    MainPy->>Runner: 创建Runner实例
+    Runner->>Model: 初始化模型
+    loop 训练循环
+        Runner->>Model: 前向扩散(添加噪声)
+        Model->>Runner: 预测噪声
+        Runner->>Runner: 计算损失
+        Runner->>Model: 更新参数
+    end
+    Runner->>MainPy: 保存模型
+```
+
+#### 2.2 训练配置文件解析
+
+`train_ddpm/configs/`目录下的配置文件定义了训练参数，主要有以下几种：
+
+1. **普通扩散模型配置 (km_re1000_rs256.yml)**:
+   - 针对Kolmogorov流，256×256分辨率，雷诺数1000
+   - 模型类型: `simple`
+   - U-Net架构参数: `ch=64`, `ch_mult=[1, 1, 1, 2]`
+   - 训练参数: 300个epochs，批量大小32
+   - 噪声调度: 线性beta调度，从0.0001到0.02
+
+2. **条件扩散模型配置 (km_re1000_rs256_conditional.yml)**:
+   - 与普通模型类似，但模型类型为`conditional`
+   - 允许在训练时引入条件信息
+
+3. **FNO配置 (fno_re200_rs64.yml)**:
+   - 针对更低分辨率(64×64)的流体数据
+
+#### 2.3 训练参数解析
+
+训练过程中的关键参数包括：
+
+```python
+# 模型架构参数
+model:
+    type: "simple"/"conditional"  # 模型类型
+    ch: 64                       # 基础通道数
+    ch_mult: [1, 1, 1, 2]        # 通道乘数（定义网络深度）
+    num_res_blocks: 1            # 每层的残差块数量
+    attn_resolutions: [16, ]     # 应用注意力机制的分辨率
+
+# 扩散过程参数
+diffusion:
+    beta_schedule: linear        # 噪声调度类型
+    beta_start: 0.0001           # 初始噪声水平
+    beta_end: 0.02               # 最终噪声水平
+    num_diffusion_timesteps: 1000  # 扩散步数
+
+# 优化器参数
+optim:
+    optimizer: "Adam"
+    lr: 0.0002                   # 学习率
+    grad_clip: 1.0               # 梯度裁剪
+```
+
+### 3. 推理过程详解
+
+推理过程由根目录下的`/Example/main.py`控制，使用训练好的模型来实现流体场的超分辨率重构。
+
+#### 3.1 推理流程
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant MainPy as main.py
+    participant Config as 配置文件
+    participant Runner as Diffusion
+    participant Physics as 物理约束模块
+    
+    User->>MainPy: 执行推理命令
+    MainPy->>Config: 解析配置文件
+    MainPy->>Runner: 创建Runner实例
+    Runner->>Runner: 加载预训练模型
+    Runner->>Runner: 初始化噪声图像
+    loop 去噪过程
+        Runner->>Runner: 预测噪声
+        alt 启用物理引导
+            Runner->>Physics: 计算物理约束
+            Physics->>Runner: 返回梯度引导
+            Runner->>Runner: 应用物理引导调整
+        end
+        Runner->>Runner: 更新去噪图像
+    end
+    Runner->>MainPy: 返回重构结果
+```
+
+#### 3.2 推理配置文件解析
+
+configs目录下的配置文件定义了推理参数：
+
+1. **基本推理配置 (kmflow_re1000_rs256.yml)**:
+   - 指定模型路径: `./pretrained_weights/baseline_ckpt.pth`
+   - 数据配置: 低分辨率输入方法为"nearest"，缩放因子为8
+   - 采样批量大小: 20
+   - 物理参数: `lambda_: 0.`（不使用物理梯度惩罚）
+
+2. **稀疏重构配置 (kmflow_re1000_rs256_sparse_recons.yml)**:
+   - 启用损失记录: `log_loss: True`
+   - 启用结果导出: `dump_arr: True`
+   - 适用于稀疏采样点的重构
+
+3. **条件式稀疏重构配置 (kmflow_re1000_rs256_sparse_recons_conditional.yml)**:
+   - 使用条件模型类型
+   - 启用平滑处理: `smoothing: True, smoothing_scale: 7`
+
+4. **条件式推理配置 (kmflow_re1000_rs256_conditional.yml)**:
+   - 使用条件模型
+   - 物理引导权重: `guidance_weight: 0.0`
+
+#### 3.3 推理参数解析
+
+推理过程中的关键参数包括：
+
+```python
+# 数据相关参数
+data:
+    blur_method: "nearest"      # 低分辨率生成方法
+    blur_scale: 8               # 缩放比例
+    smoothing: False/True       # 是否平滑处理
+    smoothing_scale: 5/7        # 平滑尺度
+
+# 模型参数
+model:
+    type: "simple"/"conditional" # 模型类型
+    ckpt_path: "./pretrained_weights/baseline_ckpt.pth"  # 预训练权重路径
+
+# 采样参数
+sampling:
+    batch_size: 20              # 批量大小
+    lambda_: 0.                 # 物理梯度惩罚权重 (simple模型)
+    guidance_weight: 0.0        # 物理引导权重 (conditional模型)
+```
+
+### 4. 物理引导的实现机制
+
+基于物理的流体超分辨率重构的核心创新在于将物理约束整合到扩散模型中。这通过几种不同的方式实现：
+
+#### 4.1 物理引导策略
+
+根据`main.py`中的逻辑，系统支持三种物理引导策略：
+
+```python
+if config.model.type == 'conditional':
+    print('Use residual gradient guidance during sampling')  # 条件引导
+    dir_name = 'guided_' + dir_name
+elif config.sampling.lambda_ > 0:
+    print('Use residual gradient penalty during sampling')   # 梯度惩罚
+    dir_name = 'pi_' + dir_name
+else:
+    print('Not use physical gradient during sampling')      # 纯扩散
+```
+
+1. **残差梯度引导（Residual Gradient Guidance）**：
+   - 用于条件模型(`model.type == 'conditional'`)
+   - 通过`guidance_weight`参数控制物理引导的强度
+   - 在去噪过程中直接引导生成方向
+
+2. **残差梯度惩罚（Residual Gradient Penalty）**：
+   - 通过`lambda_`参数来控制
+   - 作为惩罚项加入到优化目标中
+
+3. **纯扩散模型**：
+   - 不使用物理梯度（当`lambda_=0`且非条件模型）
+
+#### 4.2 稀疏重构与数据处理
+
+对于稀疏观测点的重构，系统提供了专门的处理机制：
+
+1. **稀疏数据的加载**：
+   - 通过`sample_data_dir`指定采样数据
+   - 支持不规则采样点(`kmflow_sampled_data_irregnew.npz`)
+
+2. **平滑处理**：
+   - 通过`smoothing`和`smoothing_scale`参数控制
+   - 有助于处理稀疏数据引入的不连续性
+
+### 5. 工作流程综合分析
+
+完整的工作流程可以概括为以下几个阶段：
+
+```mermaid
+graph TB
+    subgraph "数据准备阶段"
+        D1[流体数据集] --> D2[数据预处理]
+        D2 --> D3[生成低分辨率数据]
+        D3 --> D4[准备训练数据对]
+    end
+    
+    subgraph "模型训练阶段"
+        T1[配置训练参数] --> T2[初始化模型]
+        T2 --> T3[扩散模型训练]
+        T3 --> T4[模型保存]
+    end
+    
+    subgraph "推理重构阶段"
+        I1[加载预训练模型] --> I2[初始化噪声]
+        I2 --> I3[逐步去噪]
+        I3 --> I4[物理约束应用]
+        I4 --> I3
+        I3 --> I5[输出重构结果]
+    end
+    
+    D4 --> T1
+    T4 --> I1
+```
+
+### 6. 系统优势与特性
+
+1. **物理感知能力**：
+   - 通过物理引导和物理惩罚机制，确保生成结果符合流体动力学原理
+   - 与纯数据驱动方法相比，在保持物理一致性方面有显著优势
+
+2. **灵活的模型架构**：
+   - 支持普通扩散模型和条件扩散模型
+   - 能够处理不同分辨率、不同雷诺数的流体数据
+
+3. **适应稀疏观测**：
+   - 专门为稀疏观测点设计的重构机制
+   - 通过平滑处理和物理引导克服不连续性问题
+
+4. **高可配置性**：
+   - 通过YAML配置文件实现训练和推理参数的灵活调整
+   - 支持不同的物理引导强度和策略选择
+
+### 7. 使用示例
+
+#### 训练模型
+
+```bash
+python train_ddpm/main.py --config km_re1000_rs256_conditional.yml --doc km_re1000_conditional --exp experiments
+```
+
+#### 推理重构
+
+```bash
+python main.py --config kmflow_re1000_rs256_conditional.yml --t 400 --r 20 --seed 1234
+```
+
+其中：
+- `--t 400`: 设置采样噪声尺度
+- `--r 20`: 设置反向步数
+- `--seed 1234`: 设置随机种子
+
+通过调整配置文件中的`guidance_weight`或`lambda_`参数，可以控制物理约束的强度，从而在视觉质量和物理准确性之间取得平衡。
+
+### 总结
+
+基于物理的流体超分辨率扩散模型系统通过结合深度生成模型与流体物理约束，实现了高质量的流体场重构。系统的模块化设计和灵活的配置机制使其能够适应不同的应用场景，特别是在稀疏观测点的重构任务中展现出显著优势。物理引导机制的引入是该系统的核心创新，确保了生成结果不仅视觉逼真，还符合基本的流体动力学原理。

@@ -485,3 +485,5 @@ python main.py --config kmflow_re1000_rs256.yml --seed 1234 --sample_step 1 --t 
 
 - [https://github.com/ermongroup/SDEdit](https://github.com/ermongroup/SDEdit) (SDEdit: 基于随机微分方程的引导图像合成与编辑)
 - [https://github.com/ermongroup/ddim](https://github.com/ermongroup/ddim) (去噪扩散隐式模型)
+
+*这个阅读log在`Reconstruction Log.md`里面*
