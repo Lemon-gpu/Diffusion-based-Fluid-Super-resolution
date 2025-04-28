@@ -31,14 +31,16 @@ def parse_args_and_config():
     os.makedirs(config.log_dir, exist_ok=True)
     if config.model.type == 'conditional':
 
-        dir_name = 'recons_{}_t{}_r{}_w{}'.format(config.data.data_kw,
+        dir_name = 'recons_{}_t{}_r{}_w{}_smoothing{}'.format(config.data.data_kw,
                                                     args.t, args.reverse_steps,
-                                                    config.sampling.guidance_weight)
+                                                    config.sampling.guidance_weight,
+                                                    config.data.smoothing)
     else:
 
-        dir_name = 'recons_{}_t{}_r{}_lam{}'.format(config.data.data_kw,
+        dir_name = 'recons_{}_t{}_r{}_lam{}_smoothing{}'.format(config.data.data_kw,
                                                     args.t, args.reverse_steps,
-                                                    config.sampling.lambda_)
+                                                    config.sampling.lambda_,
+                                                    config.data.smoothing)
 
     if config.model.type == 'conditional':
         print('Use residual gradient guidance during sampling')

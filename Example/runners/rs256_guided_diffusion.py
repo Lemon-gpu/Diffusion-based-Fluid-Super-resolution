@@ -161,26 +161,27 @@ def random_square_hole_mask(data, hole_size):
 
 
 def make_image_grid(images, out_path, ncols=10):
-    # assume images in the shape of (N, T, H, W)
-    t, h, w = images.shape
+    print("The shape of the images is: ", images.shape)
+    # assume images in the shape of (N, H, W)
     images = images.detach().cpu().numpy()
-    b = t // ncols
-    fig = plt.figure(figsize=(8., 8.))
-    grid = ImageGrid(fig, 111,  # similar to subplot(111)
-                     nrows_ncols=(b, ncols),  # creates 2x2 grid of axes
-                     )
-
-    for ax, im_no in zip(grid, np.arange(b*ncols)):
-        # Iterating over the grid returns the Axes.
-        ax.imshow(images[im_no, :, :], cmap='twilight', vmin=-23, vmax=23)
-        ax.axis('off')
-    # Adding the title to show the resolution of a single image
-    fig.suptitle(f'Image shape: {h}x{w}', fontsize=12)
-    fig.subplots_adjust(wspace=0.1, hspace=0.1)
+    t = len(images)  # 总图像数量
     
-    plt.savefig(out_path, bbox_inches='tight')
-    # Also save the pdf version
-    plt.savefig(out_path.replace('.png', '.pdf'), bbox_inches='tight')
+    # 创建单行图像网格
+    fig, axes = plt.subplots(1, ncols, figsize=(16, 4))
+    fig.patch.set_alpha(0)
+    
+    for j in range(ncols):
+        idx = j * 5 - 1 if j > 0 else j
+        if idx < t:
+            axes[j].imshow(images[idx], cmap='twilight', interpolation='none', vmin=-23, vmax=23)
+            axes[j].axis('off')
+            axes[j].patch.set_alpha(0)
+        else:
+            axes[j].axis('off')
+    
+    plt.savefig(out_path, bbox_inches='tight', transparent=True, dpi=300)
+    plt.savefig(out_path.replace('.png', '.pdf'), bbox_inches='tight', transparent=True)
+    plt.savefig(out_path.replace('.png', '.eps'), bbox_inches='tight', transparent=True)
     plt.close()
 
 
@@ -348,10 +349,10 @@ class Diffusion(object):
             x0_masked = x0.clone()
             # print(torch.any(mask))
             # x0_masked[~mask] = np.nan
-            make_image_grid(slice2sequence(x0_masked), path_to_dump)
+            make_image_grid(slice2sequence(x0_masked), path_to_dump, 4)
             sample_img_filename = 'reference_image.png'
             path_to_dump = os.path.join(self.image_sample_dir, sample_folder, sample_img_filename)
-            make_image_grid(slice2sequence(gt), path_to_dump)
+            make_image_grid(slice2sequence(gt), path_to_dump, 4)
 
             # save as array
             if self.config.sampling.dump_arr:
@@ -442,7 +443,7 @@ class Diffusion(object):
             # Visualized the reconstructed image
             sample_img_filename = f'sample_run_{repeat}_it{it}.png'
             path_to_dump = os.path.join(self.image_sample_dir, sample_folder, sample_img_filename)
-            make_image_grid(slice2sequence(scaler.inverse(x)), path_to_dump)
+            make_image_grid(slice2sequence(scaler.inverse(x)), path_to_dump, 4)
 
             # with open(os.path.join(self.image_sample_dir, sample_folder, f'log.pkl'), 'wb') as f:
             #     pickle.dump({'l2 loss': l2_loss_log, 'residual loss': residual_loss_log, 'bicubic': bicubic_log}, f)
