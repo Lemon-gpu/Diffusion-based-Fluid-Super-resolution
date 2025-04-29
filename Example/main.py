@@ -12,6 +12,12 @@ import copy
 
 from runners.rs256_guided_diffusion import Diffusion
 
+# Explanation: The import statements here bring in various modules such as argparse, traceback, and logging.
+# Explanation: argparse is used for parsing command-line options; traceback helps with detailed stack trace output.
+# Explanation: shutil, logging, yaml, sys, os, torch, numpy are used for file operations, logging, configuration loading, system calls, deep learning tasks, and numeric operations.
+# Explanation: We also import torch.utils.tensorboard (aliased as tb) and copy for additional deep learning utilities and object duplication features.
+# Explanation: Finally, from runners.rs256_guided_diffusion import Diffusion, which is the class handling the diffusion-based fluid reconstruction process.
+
 def parse_args_and_config():
     parser = argparse.ArgumentParser(description=globals()['__doc__'])
     parser.add_argument('--config', type=str, required=True, help='Path to the config file')
@@ -22,6 +28,13 @@ def parse_args_and_config():
     parser.add_argument('--r', dest='reverse_steps', type=int, default=20, help='Revserse steps')
     parser.add_argument('--comment', type=str, default='', help='Comment')
     args = parser.parse_args()
+
+    # Explanation: The parse_args_and_config function handles reading command-line arguments and merges them with a YAML config file.
+    # Explanation: It sets up default values for seeds, sampling steps, reverse steps, and so on, then loads the specified config from the 'configs' directory.
+    # Explanation: Next, the function checks the model type (conditional or otherwise) to decide how to name the output directory.
+    # Explanation: The logging system is also set up here, with a file handler writing to 'logging_info.txt'.  
+    # Explanation: A device (GPU / CPU) is chosen based on system availability, and random seeds are set for reproducibility.
+    # Explanation: Finally, it returns the parsed arguments, the merged config, a logger object, and the directory path for logs.
 
     # parse config file
     with open(os.path.join('configs', args.config), 'r') as f:
@@ -81,6 +94,8 @@ def parse_args_and_config():
 
 
 def dict2namespace(config):
+    # Explanation: The dict2namespace function recursively converts a nested dictionary structure into a Python namespace.  
+    # Explanation: This allows attributes to be accessed like object fields, rather than dictionary keys.
     namespace = argparse.Namespace()
     for key, value in config.items():
         if isinstance(value, dict):
@@ -92,6 +107,11 @@ def dict2namespace(config):
 
 
 def main():
+    # Explanation: In the main function, we first parse arguments and config via parse_args_and_config, then print out debugging info.
+    # Explanation: A Diffusion object is created with the parsed arguments, config, logger, and log directory, and the reconstruct method is called.
+    # Explanation: This reconstruct method presumably handles the main reconstruction or sampling logic for the fluid-based diffusion model.
+    # Explanation: If any unexpected exception occurs, traceback.format_exc() is used to log the entire error stack for easier debugging.
+    # Explanation: The function then returns 0, indicating a successful run, and the script ends by calling sys.exit(main()) when __main__ is invoked.
     args, config, logger, log_dir = parse_args_and_config()
     print(">" * 80)
     logging.info("Exp instance id = {}".format(os.getpid()))

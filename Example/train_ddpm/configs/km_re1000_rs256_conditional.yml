@@ -34,7 +34,7 @@ diffusion:
 training:
     batch_size: 30 # 32
     n_epochs: 300 # 300 epoch for about 12 hours
-    n_iters: 200000 # 200000
+    n_iters: 200000 # 200000, not being used 
     snapshot_freq: 20000
     validation_freq: 2000
 

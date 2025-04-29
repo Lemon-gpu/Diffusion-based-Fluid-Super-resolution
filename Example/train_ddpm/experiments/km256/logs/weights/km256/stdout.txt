@@ -1,0 +1,7 @@
+INFO - main.py - 2025-04-29 13:41:04,853 - Using device: cuda
+INFO - main.py - 2025-04-29 13:41:04,854 - Writing log file to ./experiments/km256/logs/./weights/km256/
+INFO - main.py - 2025-04-29 13:41:04,855 - Exp instance id = 67704
+INFO - main.py - 2025-04-29 13:41:04,855 - Exp comment = 
+INFO - diffusion_tub.py - 2025-04-29 13:41:19,355 - step: 1, loss: 233585.8125, data time: 0.550323486328125
+INFO - diffusion_tub.py - 2025-04-29 13:43:11,251 - step: 101, loss: 196677.375, data time: 0.01375770096731658
+INFO - diffusion_tub.py - 2025-04-29 13:44:58,670 - step: 201, loss: 196635.78125, data time: 0.010975906504920465
