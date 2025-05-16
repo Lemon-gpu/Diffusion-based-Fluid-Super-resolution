@@ -1,51 +1,53 @@
-# 基于扩散的流体超分辨率（Diffusion-based Fluid Super-resolution）
+# Diffusion-based Fluid Super-resolution
 <br>
 
-PyTorch实现论文：
+> This README documentation constitutes a substantial expansion upon the [original implementation by BaratiLab](https://github.com/BaratiLab/Diffusion-based-Fluid-Super-resolution), incorporating experimental content supplementation with methodological augmentation. Readers are advised to scrutinize potential technical discrepancies that may arise from this extended documentation framework.
 
-**基于物理信息的扩散模型实现高保真流场重建（A Physics-informed Diffusion Model for High-fidelity Flow Field Reconstruction）**
+PyTorch implementation of the paper:
 
-（论文链接：<a href="https://www.sciencedirect.com/science/article/pii/S0021999123000670">计算物理学杂志</a> | <a href="https://arxiv.org/abs/2211.14680">arXiv</a>）
+**A Physics-informed Diffusion Model for High-fidelity Flow Field Reconstruction**
 
-<div style style=”line-height: 25%” align="center">
-<h3>示例1</h3>
+(Paper link: <a href="https://www.sciencedirect.com/science/article/pii/S0021999123000670">Journal of Computational Physics</a> | <a href="https://arxiv.org/abs/2211.14680">arXiv</a>)
+
+<div style="line-height: 25%" align="center">
+<h3>Example 1</h3>
 <img src="https://github.com/BaratiLab/Diffusion-based-Fluid-Super-resolution/blob/main_v1/images/reconstruction_sample_01.gif?raw=true">
-<h3>示例2</h3>
+<h3>Example 2</h3>
 <img src="https://github.com/BaratiLab/Diffusion-based-Fluid-Super-resolution/blob/main_v1/images/reconstruction_sample_02.gif?raw=true">
 </div>
 
-## 概述
-去噪扩散概率模型（Denoising Diffusion Probabilistic Models, DDPM）是数据超分辨率和重建的强有力工具。与许多需要低分辨率-高分辨率数据配对训练的其他深度学习模型不同，DDPM仅需高分辨率数据进行训练。这一特性尤其适用于从低分辨率参考数据重建高保真CFD数据，因为它使模型更独立于低分辨率数据分布，从而能更好地适应不同重建任务中的各种数据模式。
+## Overview
+Denoising Diffusion Probabilistic Models (DDPM) are powerful tools for data super-resolution and reconstruction. Unlike many other deep learning models that require paired low-resolution-high-resolution data for training, DDPMs only need high-resolution data for training. This feature is particularly suitable for reconstructing high-fidelity CFD data from low-resolution reference data, as it makes the model more independent of the low-resolution data distribution, thus better adapting to various data patterns in different reconstruction tasks.
 
-这篇论文提出了一个将物理信息与扩散模型结合的新框架(PhyDiff)，用于流场重建。其创新点主要包括：
+This paper proposes a new framework (PhyDiff) that combines physical information with diffusion models for flow field reconstruction. Its main innovations include:
 
-1. **首次将物理信息整合入扩散模型**：作者创造性地在扩散模型框架中融入了物理约束，使模型既能从数据中学习，又能遵循物理定律。
+1.  **First integration of physical information into diffusion models**: The authors creatively incorporated physical constraints into the diffusion model framework, enabling the model to learn from data while adhering to physical laws.
 
-2. **双重损失函数设计**：提出了结合数据驱动损失和物理信息损失的训练策略，使模型在生成过程中满足流体力学的守恒方程。
+2.  **Dual loss function design**: A training strategy combining data-driven loss and physics-informed loss was proposed, enabling the model to satisfy the conservation equations of fluid mechanics during generation.
 
-3. **解决了稀疏观测问题**：能够从极少量的测量点重建完整高质量流场，这在实际应用中非常有价值。
+3.  **Addresses the sparse observation problem**: Capable of reconstructing complete high-quality flow fields from a very small number of measurement points, which is very valuable in practical applications.
 
-4. **提出了概率性重建框架**：不同于传统确定性方法，PhyDiff提供了具有不确定性量化的概率性流场重建。
+4.  **Proposes a probabilistic reconstruction framework**: Unlike traditional deterministic methods, PhyDiff provides probabilistic flow field reconstruction with uncertainty quantification.
 
-### 研究者应重点关注的方面
+### Aspects Researchers Should Focus On
 
-1. **物理信息融合机制**：论文中通过在反向扩散过程中引入物理引导项，将Navier-Stokes方程作为约束条件，这一融合方式值得深入研究。
+1.  **Physics-information fusion mechanism**: The paper introduces a physics-guided term in the reverse diffusion process, using the Navier-Stokes equations as constraints. This fusion method is worth in-depth study.
 
-2. **模型性能与泛化能力**：PhyDiff在重建准确性上优于现有方法，特别是在处理不同Reynolds数的流场和超出训练分布的情况时表现出色。
+2.  **Model performance and generalization ability**: PhyDiff outperforms existing methods in reconstruction accuracy, especially when dealing with flow fields of different Reynolds numbers and cases beyond the training distribution.
 
-3. **不确定性量化**：扩散模型天然提供了多样化采样能力，使物理场重建具有不确定性量化，这对于可靠性分析很重要。
+3.  **Uncertainty quantification**: Diffusion models naturally provide diverse sampling capabilities, enabling physical field reconstruction with uncertainty quantification, which is important for reliability analysis.
 
-4. **计算效率问题**：论文中提到虽然推理时间比传统方法长，但重建质量大幅提升，这种权衡值得考虑。
+4.  **Computational efficiency issues**: The paper mentions that although the inference time is longer than traditional methods, the reconstruction quality is significantly improved. This trade-off is worth considering.
 
-5. **应用扩展潜力**：这一框架可能扩展到其他物理系统的重建，如电磁场、热场等，研究者可以探索这些方向。
+5.  **Potential for application expansion**: This framework may be extended to the reconstruction of other physical systems, such as electromagnetic fields, thermal fields, etc. Researchers can explore these directions.
 
-6. **实际落地应用**：虽然论文中展示了在CFD数据上的应用，但在实际工程中如何有效集成和部署仍然是一个挑战。可见的是，由于超分技术的引入，将高精度CFD数据应用于实时模拟和控制系统中是一个重要的研究方向。更通俗而言，模拟风洞实验或流体动力学实验的实时反馈。
+6.  **Practical real-world applications**: Although the paper demonstrates applications on CFD data, how to effectively integrate and deploy it in actual engineering remains a challenge. It is evident that, due to the introduction of super-resolution technology, applying high-precision CFD data to real-time simulation and control systems is an important research direction. More colloquially, real-time feedback for simulating wind tunnel experiments or fluid dynamics experiments.
 
-作为研究者，您可能还需要关注论文中模型的实现细节、超参数选择，以及如何针对特定应用场景进行优化和改进。论文为将扩散模型应用于物理信息引导的科学计算开辟了新途径，这一方向有很大的发展潜力。
+As a researcher, you may also need to pay attention to the implementation details of the model in the paper, hyperparameter selection, and how to optimize and improve it for specific application scenarios. The paper opens up new avenues for applying diffusion models to physics-informed scientific computing, and this direction has great development potential.
 
-## 目录结构
+## Directory Structure
 
-代码结构如下：
+The code structure is as follows:
 
 ```mermaid
 graph LR
@@ -121,162 +123,162 @@ graph LR
   pretrained --> pw_model["*.pth / *.ckpt"]
 ```
 
-下面给出该工作区的文件/目录结构，并逐个模块进行更为详细的说明，同时给出复现步骤的建议顺序。可对照该图理解项目整体布局。
+The file/directory structure of this workspace is provided below, with a more detailed explanation for each module and a suggested order for reproduction steps. You can refer to this diagram to understand the overall project layout.
 
-### 1. 根目录结构概览
+### 1. Root Directory Structure Overview
 
-- .gitignore  
-  忽略提交的数据或日志文件等，避免冗余文件进入版本库。  
-- LICENSE  
-  该项目采用的开源协议（MIT）。  
-- README.md / README_CN.md  
-  项目介绍、使用方法及依赖说明等，分别为英文/中文版本。  
-- requirements.txt  
-  给出 Python 依赖包列表，便于安装项目依赖。
+- .gitignore
+  Ignores committed data or log files, etc., to prevent redundant files from entering the version control repository.
+- LICENSE
+  The open-source license adopted by this project (MIT).
+- README.md / README_CN.md
+  Project introduction, usage methods, dependency instructions, etc., in English/Chinese versions respectively.
+- requirements.txt
+  Provides a list of Python dependency packages for easy installation of project dependencies.
 
-> **复现指引**  
-> 在正式开始前，阅读 README 了解项目定位与环境要求，使用 `pip install -r requirements.txt` 安装项目依赖。
+> **Reproduction Guide**
+> Before officially starting, read the README to understand the project's positioning and environmental requirements, and use `pip install -r requirements.txt` to install project dependencies.
 
-### 2. 根目录
+### 2. Root Directory
 
-- main.py  
-  • 最终执行超分辨率重建的入口脚本，解析命令行参数，加载配置（yaml），并调用 `runners/rs256_guided_diffusion.py` 的 `Diffusion.reconstruct()` 执行重建。  
-- test.sh  
-  • 调用 main.py 进行采样测试的脚本示例，封装常用参数。  
-- configs  
-  • 存放超分/重建所需的基础配置文件（`.yml`），如并行数、网络大小、采样步数等。  
-- data  
-  - Example/data/hr/：高分辨率流场数据（真值）  
-  - Example/data/lr/：与高分辨率对应的低分辨率输入  
-- train.sh  
-  • 示例脚本，用于一键调用 main.py 进行训练（指定配置、输出路径等）。
+- main.py
+  • The entry script for finally executing super-resolution reconstruction. It parses command-line arguments, loads configuration (yaml), and calls `Diffusion.reconstruct()` from `runners/rs256_guided_diffusion.py` to perform reconstruction.
+- test.sh
+  • An example script that calls main.py for sampling tests, encapsulating commonly used parameters.
+- configs
+  • Stores basic configuration files (`.yml`) required for super-resolution/reconstruction, such as number of parallel processes, network size, sampling steps, etc.
+- data
+  - Example/data/hr/: High-resolution flow field data (ground truth)
+  - Example/data/lr/: Low-resolution input corresponding to high-resolution
+- train.sh
+  • Example script for one-click calling of main.py for training (specifying configuration, output path, etc.).
 
-> **复现指引**  
-> 1) 准备数据。保证 `hr/` 与 `lr/` 文件夹中有对应的流场数据。  
-> 2) 想要快速上手，可以先使用预训练模型并运行 `test.sh`，查看重建结果。
+> **Reproduction Guide**
+> 1) Prepare data. Ensure that the `hr/` and `lr/` folders contain corresponding flow field data.
+> 2) To get started quickly, you can first use the pre-trained model and run `test.sh` to view the reconstruction results.
 
-### 3. runners/ （超分辨率核心算法）
+### 3. runners/ (Core Super-resolution Algorithm)
 
-- runners/rs256_guided_diffusion.py  
-  • Guided Diffusion 主实现，`Diffusion` 类包含从低分到高分的生成/迭代推断逻辑。  
-- runners/rs128_guided_diffusion.py / runners/rs64_guided_diffusion.py  
-  • 与上面类似，只是对应不同分辨率或不同超分任务的处理脚本。  
+- runners/rs256_guided_diffusion.py
+  • Main implementation of Guided Diffusion. The `Diffusion` class contains the generation/iterative inference logic from low-resolution to high-resolution.
+- runners/rs128_guided_diffusion.py / runners/rs64_guided_diffusion.py
+  • Similar to the above, but are processing scripts for different resolutions or different super-resolution tasks.
 
-> **复现指引**  
-> 如果主要针对于 `256×256` 分辨率扩散超分，可聚焦在 `rs256_guided_diffusion.py` 并查看其 `reconstruct()` 函数。
+> **Reproduction Guide**
+> If you are mainly focusing on `256×256` resolution diffusion super-resolution, you can focus on `rs256_guided_diffusion.py` and check its `reconstruct()` function.
 
-### 4. train_ddpm/ （DDPM 训练相关）
+### 4. train_ddpm/ (DDPM Training Related)
 
-- main.py  
-  • 训练入口脚本，读取对应配置（`.yml`），执行扩散模型（DDPM）训练过程。  
-- train.sh  
-  • 一键启动训练脚本（可自定义 `CUDA_VISIBLE_DEVICES`、日志路径等）。  
-- train_ddpm/configs/  
-  - kmflow_re1000_rs256_conditional.yml / km_re1000_rs256_conditional.yml  
-  • 用于训练的超参配置，如网络宽度、迭代轮数、学习率、噪声 schedule 等。  
-- README.md  
-  • 训练说明（训练脚本介绍、包含示例命令）。
+- main.py
+  • Training entry script, reads the corresponding configuration (`.yml`), and executes the diffusion model (DDPM) training process.
+- train.sh
+  • One-click script to start training (customizable `CUDA_VISIBLE_DEVICES`, log path, etc.).
+- train_ddpm/configs/
+  - kmflow_re1000_rs256_conditional.yml / km_re1000_rs256_conditional.yml
+  • Hyperparameter configurations for training, such as network width, number of iterations, learning rate, noise schedule, etc.
+- README.md
+  • Training instructions (introduction to training scripts, including example commands).
 
-> **复现指引**  
-> 1) 如需从头开始训练模型，先进入 `train_ddpm/` 文件夹，参考 train.sh 或 main.py 启动训练。  
-> 2) 训练完成后，将得到的权重文件（`.pth` 或 `.ckpt`）保存到 `pretrained_weights/` 里，以便下一步的采样或继续调试。
+> **Reproduction Guide**
+> 1) If you need to train the model from scratch, first enter the `train_ddpm/` folder and refer to train.sh or main.py to start training.
+> 2) After training is complete, save the obtained weight file (`.pth` or `.ckpt`) to `pretrained_weights/` for the next step of sampling or continued debugging.
 
-### 5. models/ （网络与扩散算法实现）
+### 5. models/ (Network and Diffusion Algorithm Implementation)
 
-- models/unet.py  
-  • 定义了 U-Net 的深度结构，用于扩散模型中的去噪过程。  
-- models/diffusion.py  
-  • DDPM 正向/逆向扩散过程的核心逻辑，含噪声生成、损失函数等。  
-- models/sde.py  
-  • 一些随机微分方程工具分析与扩散过程相关的公式实现。  
-- models/__init__.py  
-  • 用于模块初始化或导入路径配置。
+- models/unet.py
+  • Defines the deep structure of U-Net, used for the denoising process in the diffusion model.
+- models/diffusion.py
+  • Core logic of DDPM forward/reverse diffusion process, including noise generation, loss function, etc.
+- models/sde.py
+  • Some stochastic differential equation tools for analysis and implementation of formulas related to the diffusion process.
+- models/__init__.py
+  • Used for module initialization or import path configuration.
 
-> **复现指引**  
-> 这些文件是核心算法的底层结构，训练脚本与 `[runners/…]` 会调用其中的函数；一般无需改动，除非需要自定义网络结构或改进扩散处理方式。
+> **Reproduction Guide**
+> These files are the underlying structure of the core algorithm. The training scripts and `[runners/…]` will call functions within them; generally, no modification is needed unless you need to customize the network structure or improve the diffusion processing method.
 
-### 6. utils/ （工具函数与辅助模块）
+### 6. utils/ (Utility Functions and Auxiliary Modules)
 
-- utils/data_util.py  
-  • 用于数据预处理、读取 `.*npz` 文件、切分 dataset 等。  
-- utils/logger.py  
-  • 日志系统，记录训练/推断实时信息。  
-- utils/metrics.py  
-  • 实现常用图像质量或流场评估指标（PSNR、SSIM 等）。  
-- utils/visualize.py  
-  • 绘制/可视化重建结果（如 `.npy` 转为图像）或对比图。
+- utils/data_util.py
+  • Used for data preprocessing, reading `.*npz` files, splitting datasets, etc.
+- utils/logger.py
+  • Logging system, records real-time information during training/inference.
+- utils/metrics.py
+  • Implements common image quality or flow field evaluation metrics (PSNR, SSIM, etc.).
+- utils/visualize.py
+  • Plots/visualizes reconstruction results (e.g., `.npy` to image) or comparison charts.
 
-> **复现指引**  
-> 如果需要定制数据加载流程，或实现额外评估指标，可直接修改 utils/data_util.py 和 utils/metrics.py。
+> **Reproduction Guide**
+> If you need to customize the data loading process or implement additional evaluation metrics, you can directly modify utils/data_util.py and utils/metrics.py.
 
-### 7. pretrained_weights/ （预训练模型权重）
+### 7. pretrained_weights/ (Pre-trained Model Weights)
 
-- `[*.pth / *.ckpt]`  
-  • 训练完成后生成或官方提供的预训练模型文件。  
-  • 供 `Example/main.py` 或 `train_ddpm/main.py` 加载并执行超分推断。
+- `[*.pth / *.ckpt]`
+  • Pre-trained model files generated after training or provided officially.
+  • For `Example/main.py` or `train_ddpm/main.py` to load and perform super-resolution inference.
 
-> **复现指引**  
-> 不想自己训练模型时，可将官方给出的权重放入该文件夹后，再运行 main.py 进行采样与重建。
+> **Reproduction Guide**
+> If you don't want to train the model yourself, you can put the officially provided weights into this folder and then run main.py for sampling and reconstruction.
 
-## 从零开始的完整复现流程
+## Complete Reproduction Process From Scratch
 
-1. **安装依赖**  
-   ```bash
-   pip install -r requirements.txt
-   ```
+1.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-2. **准备数据**  
-   - 下载高分辨率/低分辨率数据，放到 Example/data/hr/ 与 Example/data/lr/  
-   - 确保数据格式与配置文件中描述的尺寸/变量一致。
+2.  **Prepare Data**
+    - Download high-resolution/low-resolution data and place them in Example/data/hr/ and Example/data/lr/
+    - Ensure data format is consistent with the dimensions/variables described in the configuration file.
 
-3. **可选：直接使用预训练模型**  
-   - 将官方或已训练好的 `.pth` 文件放至 pretrained_weights/  
-   - 进入 Example 目录并执行 `test.sh` 或手动执行：  
-     ```bash
-     python main.py --config kmflow_re1000_rs256_sparse_recons_conditional.yml --seed 1234 --sample_step 1 --t 240 --r 30
-     ```
+3.  **Optional: Directly Use Pre-trained Model**
+    - Place the official or pre-trained `.pth` file into pretrained_weights/
+    - Enter the Example directory and execute `test.sh` or manually execute:
+      ```bash
+      python main.py --config kmflow_re1000_rs256_sparse_recons_conditional.yml --seed 1234 --sample_step 1 --t 240 --r 30
+      ```
 
-4. **完整流程：从头训练 + 重建**  
-   - 进入 train_ddpm/ 文件夹，运行 `train.sh` 或  
-     ```bash
-     python main.py --config ./kmflow_re1000_rs256_conditional.yml --exp ./experiments/km256/ --doc ./weights/km256/ --ni
-     ```  
-   - 训练完成后，复制生成的权重文件至 `pretrained_weights/`  
-   - 回到 Example 目录执行 `test.sh`，验证重建效果
+4.  **Complete Process: Train from Scratch + Reconstruction**
+    - Enter the train_ddpm/ folder, run `train.sh` or
+      ```bash
+      python main.py --config ./kmflow_re1000_rs256_conditional.yml --exp ./experiments/km256/ --doc ./weights/km256/ --ni
+      ```
+    - After training is complete, copy the generated weight file to `pretrained_weights/`
+    - Return to the Example directory and execute `test.sh` to verify the reconstruction effect.
 
-5. **查看日志 / 可视化**  
-   - 日志：训练过程与采样过程会在指定 `log_dir` 中生成文本记录，可以结合 utils/logger.py 调整格式。  
-   - 评估：如需评估 PSNR/SSIM，可在 utils/metrics.py 中查看函数或自行改动。  
-   - 可视化：若要把重建结果 `.npy`、`.npz` 绘图，可使用 utils/visualize.py 编写自己的显示脚本。
+5.  **View Logs / Visualization**
+    - Logs: Text records of the training process and sampling process will be generated in the specified `log_dir`. You can adjust the format in conjunction with utils/logger.py.
+    - Evaluation: If you need to evaluate PSNR/SSIM, you can view the functions in utils/metrics.py or modify them yourself.
+    - Visualization: If you want to plot the reconstruction results `.npy`, `.npz`, you can use utils/visualize.py to write your own display script.
 
-通过以上解析，结合上面的 Mermaid 图查看每个目录与文件的上下游逻辑，便于理解、修改或扩展此仓库。若对扩散过程或流场重建原理有更深入需求，可进一步阅读 models/diffusion.py 与 runners。
+Through the above analysis, combined with the Mermaid diagram above to view the upstream and downstream logic of each directory and file, it is convenient to understand, modify, or extend this repository. If you have a deeper need for the principles of the diffusion process or flow field reconstruction, you can further read models/diffusion.py and runners.
 
-而如果想重写代码，先写底层网络和扩散算法，再实现调度逻辑和训练入口，最后编写推断主函数。可按如下顺序进行：
+And if you want to rewrite the code, first write the underlying network and diffusion algorithm, then implement the scheduling logic and training entry point, and finally write the main inference function. You can proceed in the following order:
 
-1. **models/unet.py**  
-   先搭建 U-Net 主体，确保核心网络结构能正常前向/反向传播。  
-2. **models/diffusion.py**  
-   实现扩散过程（DDPM）的正向/逆向公式及损失函数。  
-3. **models/sde.py**  
-   如需要 SDE，补充随机微分方程部分。  
-4. **runners/rs256_guided_diffusion.py**  
-   编写推断逻辑（从低分到高分的迭代重建），使用前面定义的网络和扩散算法。  
-5. **utils/data_util.py** / **utils/metrics.py** 等  
-   实现数据加载、预处理和评估指标。  
-6. **train_ddpm/main.py**  
-   封装训练过程，生成或加载模型权重。  
-7. **main.py**  
-   通过命令行参数读取配置，调用 `runners` 完成超分辨率推断，最后输出结果。
+1.  **models/unet.py**
+    First, build the main U-Net body, ensuring the core network structure can perform forward/backward propagation normally.
+2.  **models/diffusion.py**
+    Implement the forward/reverse formulas and loss function of the diffusion process (DDPM).
+3.  **models/sde.py**
+    If SDE is needed, supplement the stochastic differential equation part.
+4.  **runners/rs256_guided_diffusion.py**
+    Write the inference logic (iterative reconstruction from low-resolution to high-resolution), using the previously defined network and diffusion algorithm.
+5.  **utils/data_util.py** / **utils/metrics.py** etc.
+    Implement data loading, preprocessing, and evaluation metrics.
+6.  **train_ddpm/main.py**
+    Encapsulate the training process, generate or load model weights.
+7.  **main.py**
+    Read configuration through command-line parameters, call `runners` to complete super-resolution inference, and finally output results.
 
-## 数据集
-用于模型训练和采样的数据集可通过以下链接下载：
+## Dataset
+The datasets used for model training and sampling can be downloaded from the following links:
 
-- 高分辨率数据（超分辨率任务的基准真值）(<a href="https://figshare.com/ndownloader/files/39181919">链接</a>)
+- High-resolution data (ground truth for super-resolution tasks) (<a href="https://figshare.com/ndownloader/files/39181919">Link</a>)
 
-- 从随机网格位置测量的低分辨率数据（超分辨率任务的输入数据）(<a href="https://figshare.com/ndownloader/files/39214622">链接</a>)
+- Low-resolution data measured from random grid locations (input data for super-resolution tasks) (<a href="https://figshare.com/ndownloader/files/39214622">Link</a>)
 
-## 运行实验
-本代码已在以下环境中测试通过：
+## Running Experiments
+This code has been tested in the following environment:
 
 ```
 python 3.8
@@ -288,189 +290,189 @@ einops 0.4.1
 matplotlib 3.6.2
 ```
 
-下载高分辨率和低分辨率数据，并将数据文件保存至子目录``./data/``。
+Download the high-resolution and low-resolution data, and save the data files to the subdirectory ``./data/``.
 
-<b>步骤1 - 模型训练</b>
+<b>Step 1 - Model Training</b>
 
-在子目录``./train_ddpm/``中运行：
+In the subdirectory ``./train_ddpm/``, run:
 
 ``
 bash train.sh
 ``
 
-或 
+or
 
 ``
 python main.py --config ./km_re1000_rs256_conditional.yml --exp ./experiments/km256/ --doc ./weights/km256/ --ni
 ``
 
-训练好的模型检查点默认保存在以下路径。您可以通过修改``--exp``和``--doc``的值来调整保存目录。
+Trained model checkpoints are saved by default in the following path. You can adjust the save directory by modifying the values of ``--exp`` and ``--doc``.
 
 ``.../Diffusion-based-Fluid-Super-resolution/train_ddpm/experiments/km256/logs/weights/km256/``
 
-注：如果您希望跳过步骤1，我们提供以下预训练检查点可直接开始<b>步骤2</b>：
+Note: If you wish to skip Step 1, we provide the following pre-trained checkpoints to start directly with <b>Step 2</b>:
 <ol type="1">
-  <li>未使用物理信息条件输入的模型（model without physics-informed conditioning input）(<a href="https://figshare.com/ndownloader/files/40320733">链接</a>)</li>
-  <li>使用物理信息条件输入的模型（model with physics-informed conditioning input）(<a href="https://figshare.com/ndownloader/files/39184073">链接</a>)</li>
+  <li>Model without physics-informed conditioning input (<a href="https://figshare.com/ndownloader/files/40320733">Link</a>)</li>
+  <li>Model with physics-informed conditioning input (<a href="https://figshare.com/ndownloader/files/39184073">Link</a>)</li>
 </ol>
 
-<b>步骤2 - 超分辨率重建</b>
+<b>Step 2 - Super-resolution Reconstruction</b>
 
-将<b>步骤1</b>获得的模型检查点文件（例如``baseline_ckpt.pth``）添加至以下目录：
+Add the model checkpoint file obtained in <b>Step 1</b> (e.g., ``baseline_ckpt.pth``) to the following directory:
 
 ``.../Diffusion-based-Fluid-Super-resolution/pretrained_weights/``
 
-在本仓库主目录中运行：
+In the main directory of this repository, run:
 
 ``
 python main.py --config kmflow_re1000_rs256.yml --seed 1234 --sample_step 1 --t 240 --r 30
 ``
 
-## 物理梯度嵌入
+## Physics Gradient Embedding
 
-在 [rs256_guided_diffusion.py] 和 [losses.py]中，逐行梳理如何在扩散过程中融入了 PINN（物理梯度），以及代码中关键函数的具体用途。重点关注 `voriticity_residual()` 函数如何计算 vorticity PDE（涡量方程）的残差并把梯度反馈到网络或采样流程中。
+In [rs256_guided_diffusion.py] and [losses.py], we will go line by line to sort out how PINN (physics gradient) is integrated into the diffusion process, and the specific uses of key functions in the code. The focus is on how the `voriticity_residual()` function calculates the residual of the vorticity PDE (vorticity equation) and feeds the gradient back into the network or sampling process.
 
-### `voriticity_residual()` 与 PINN 的核心思路
+### `voriticity_residual()` and the Core Idea of PINN
 
-两份文件里都实现了 `voriticity_residual()`，功能相似，都是根据流体力学基础方程（2D 涡量形式）来计算 PDE 残差和梯度。其大体流程如下：
+Both files implement `voriticity_residual()`, with similar functionality: calculating the PDE residual and gradient based on fundamental fluid dynamics equations (2D vorticity form). The general process is as follows:
 
-1. 接收流场张量 `w`（形状 [batch, time, H, W]），其中每个通道往往对应不同的时刻。  
-2. 通过傅里叶变换 (`torch.fft.fft2`) 得到频域变量；然后根据涡量-流函数关系，推算速度场 $(u, v)$ 以及拉普拉斯、偏导数等信息。  
-3. 依据离散化的涡量方程：  
-   $$w_t + \Bigl(u \cdot \frac{\partial w}{\partial x} + v \cdot \frac{\partial w}{\partial y}\Bigr)
-   - \frac{1}{\mathrm{Re}}\,\Delta w + 0.1\,w - f = 0$$  
-   其中 $f$ 是外力项，$\mathrm{Re}$ 是雷诺数，$w_t$ 表示对时间的偏导，$\Delta w$ 表示拉普拉斯运算。  
-4. 将残差 residual = “上式” 的非零部分平方求平均，即为 `residual_loss`，代表物理违反程度。  
-5. 若需要计算梯度，则对 `residual_loss` 相对于 `w` 做一次 `torch.autograd.grad`，得到 `dw`，即“物理梯度”。  
-6. 在训练或采样过程中，可将 `dw` 视为一股“物理纠正力”，逼近真实流体动力学方程，从而实现 PINN 思路。
+1.  Receives the flow field tensor `w` (shape [batch, time, H, W]), where each channel often corresponds to a different time step.
+2.  Obtains frequency domain variables through Fourier transform (`torch.fft.fft2`); then, based on the vorticity-stream function relationship, infers the velocity field $(u, v)$ and information such as Laplacian, partial derivatives, etc.
+3.  According to the discretized vorticity equation:
+    $$w_t + \Bigl(u \cdot \frac{\partial w}{\partial x} + v \cdot \frac{\partial w}{\partial y}\Bigr)
+    - \frac{1}{\mathrm{Re}}\,\Delta w + 0.1\,w - f = 0$$
+    where $f$ is the external force term, $\mathrm{Re}$ is the Reynolds number, $w_t$ represents the partial derivative with respect to time, and $\Delta w$ represents the Laplacian operation.
+4.  The residual = the non-zero part of "the above equation" squared and averaged, which is the `residual_loss`, representing the degree of physics violation.
+5.  If gradients need to be calculated, `torch.autograd.grad` is performed on `residual_loss` with respect to `w` to obtain `dw`, i.e., the "physics gradient".
+6.  During training or sampling, `dw` can be regarded as a "physics correction force", approximating the true fluid dynamics equations, thus realizing the PINN idea.
 
-在 [rs256_guided_diffusion.py] 里，`voriticity_residual()` 默认为 `calc_grad=True` 时返回 `(dw, residual_loss)`，否则仅返回 `residual_loss`。在 [losses.py] 里，它仅返回 `dw`，在训练中可配合其他损失项共同最小化。
+In [rs256_guided_diffusion.py], `voriticity_residual()` defaults to returning `(dw, residual_loss)` when `calc_grad=True`, otherwise it only returns `residual_loss`. In [losses.py], it only returns `dw`, which can be minimized together with other loss terms during training.
 
-### [rs256_guided_diffusion.py] 主要结构
+### Main Structure of [rs256_guided_diffusion.py]
 
-1. **导入部分**  
-   - `functions/diffusion_step.py`: 提供扩散采样方法，如 `ddpm_steps`, `ddim_steps`, `guided_ddim_steps` 等。  
-   - `models/diffusion_new`: 包含 `ConditionalModel` / `Model`，即 U-Net 为主体的扩散网络。  
-   - `functions/process_data`: 提供数据加载或预处理（如 `load_recons_data()`）。
+1.  **Import Section**
+    - `functions/diffusion_step.py`: Provides diffusion sampling methods, such as `ddpm_steps`, `ddim_steps`, `guided_ddim_steps`, etc.
+    - `models/diffusion_new`: Contains `ConditionalModel` / `Model`, i.e., the U-Net based diffusion network.
+    - `functions/process_data`: Provides data loading or preprocessing (e.g., `load_recons_data()`).
 
-2. **核心类：`Diffusion`**  
-   - 构造函数里加载 beta schedule（`get_beta_schedule()`），并初始化 logvar；  
-   - `reconstruct()` 方法是最重要的核心流程，用于从低分辨率流场推断高分辨率结果。  
+2.  **Core Class: `Diffusion`**
+    - The constructor loads the beta schedule (`get_beta_schedule()`) and initializes logvar.
+    - The `reconstruct()` method is the most important core process, used to infer high-resolution results from low-resolution flow fields.
 
-3. **在 `reconstruct()` 中融入 PINN**  
-   - 约在第 290 行处，根据模型类型判断是否需要物理梯度：  
-     (a) Conditional Model：  
-       physical_gradient_func = lambda x: voriticity_residual(scaler.inverse(x))[0] / scaler.scale()  
-     (b) 若 `lambda_ > 0`，则也会引入 `voriticity_residual()` 并乘上加权系数。  
-   - 这会被传给 `guided_ddim_steps()` 或 `ddim_steps()` 作为 `dx_func`，在每个反向扩散步骤里调用 `dx_func(x)` 得到 PDE 梯度，叠加到采样更新公式中。  
-   - 因此，扩散采样过程不再仅仅依赖模型输出的噪声估计；还会受到 PDE 残差梯度的“纠正”，使生成的流场逐步符合物理约束（这正是 PINN 注入的关键）。
+3.  **Integrating PINN in `reconstruct()`**
+    - Around line 290, it determines whether a physics gradient is needed based on the model type:
+      (a) Conditional Model:
+        physical_gradient_func = lambda x: voriticity_residual(scaler.inverse(x))[0] / scaler.scale()
+      (b) If `lambda_ > 0`, then `voriticity_residual()` will also be introduced and multiplied by a weighting coefficient.
+    - This will be passed to `guided_ddim_steps()` or `ddim_steps()` as `dx_func`. In each reverse diffusion step, `dx_func(x)` is called to obtain the PDE gradient, which is then added to the sampling update formula.
+    - Therefore, the diffusion sampling process no longer solely relies on the noise estimation output by the model; it is also "corrected" by the PDE residual gradient, making the generated flow field gradually conform to physical constraints (this is the key to PINN injection).
 
-4. **残差与梯度在采样中的记录**  
-   - 如第 378 行左右，会用 `l2_loss_all` 和 `residual_loss_all` 记录在不同迭代下的 L2 误差和 PDE 残差，便于后期分析。  
-   - 采样完成后可查看 “mean l2 loss” 与 “mean residual loss”，衡量最终结果既和真值接近又符合物理规律。
-  
-### 3. [losses.py] 训练阶段如何使用物理残差
+4.  **Recording Residuals and Gradients During Sampling**
+    - Around line 378, `l2_loss_all` and `residual_loss_all` are used to record the L2 error and PDE residual at different iterations for later analysis.
+    - After sampling is complete, one can check the "mean l2 loss" and "mean residual loss" to measure how well the final result is both close to the ground truth and conforms to physical laws.
 
-1. `voriticity_residual(w, re=1000.0, dt=1/32)`  
-   - 与上面相同的 PDE 残差计算，只是这里直接返回 `dw`，在训练时可以把它与模型的噪声预测误差一起，形成整体损失。  
-2. `conditional_noise_estimation_loss()`  
-   - 常规的噪声估计损失 + 物理残差：  
-     flag < p 时只用原扩散模型损失；否则会额外计算 `dx = voriticity_residual(...)` 并传给模型 `model(x, t.float(), dx)`，使网络学到物理约束。  
-   - 这说明在训练“条件模型”时，PDE 梯度能被网络感知，进而学得更“物理一致”的去噪模型。
+### 3. How Physics Residuals are Used in the Training Phase in [losses.py]
 
-### 4. 综合小结
+1.  `voriticity_residual(w, re=1000.0, dt=1/32)`
+    - Same PDE residual calculation as above, but here it directly returns `dw`. During training, it can be combined with the model's noise prediction error to form the overall loss.
+2.  `conditional_noise_estimation_loss()`
+    - Regular noise estimation loss + physics residual:
+      When flag < p, only the original diffusion model loss is used; otherwise, `dx = voriticity_residual(...)` is additionally calculated and passed to the model `model(x, t.float(), dx)`, so that the network learns the physical constraints.
+    - This indicates that when training a "conditional model", the PDE gradient can be perceived by the network, leading to a more "physically consistent" denoising model.
 
-1. **扩散模型**：`Model` 和 `ConditionalModel` 提供从噪声到清晰流场的预测。  
-2. **PINN 注入**：  
-   - 训练时：在 `conditional_noise_estimation_loss()` 里，将 `voriticity_residual` 得到的梯度 `dx` 传入模型；网络不仅要拟合数据，还要满足 PDE 约束，成为 PINN 化的扩散模型。  
-   - 采样时：在 `Diffusion.reconstruct()` 中把残差梯度做为 `dx_func`，动态修正扩散采样路径，使预测流场合乎物理。  
-3. **物理梯度位置**：  
-   - losses.py 中：训练时的 `voriticity_residual()`；  
-   - rs256_guided_diffusion.py 中：推断时的 `voriticity_residual()`；  
-   - 均在傅里叶域对涡量作分析，并通过 `torch.autograd.grad` 拿到梯度，将其注入到网络或迭代更新流程。
+### 4. Comprehensive Summary
 
-因此，可以看到整个项目利用涡量方程的“残差 + 梯度”来指导扩散模型的训练和推断，形成一种 PINN 与扩散式生成模型结合的超分辨率方法。
+1.  **Diffusion Model**: `Model` and `ConditionalModel` provide predictions from noise to clear flow fields.
+2.  **PINN Injection**:
+    - During training: In `conditional_noise_estimation_loss()`, the gradient `dx` obtained from `voriticity_residual` is passed into the model; the network not only fits the data but also satisfies PDE constraints, becoming a PINN-ified diffusion model.
+    - During sampling: In `Diffusion.reconstruct()`, the residual gradient is used as `dx_func` to dynamically correct the diffusion sampling path, making the predicted flow field conform to physics.
+3.  **Location of Physics Gradient**:
+    - In losses.py: `voriticity_residual()` during training;
+    - In rs256_guided_diffusion.py: `voriticity_residual()` during inference;
+    - Both analyze vorticity in the Fourier domain and obtain the gradient via `torch.autograd.grad`, injecting it into the network or iterative update process.
 
-## 训练与重建
+Therefore, it can be seen that the entire project utilizes the "residual + gradient" of the vorticity equation to guide the training and inference of the diffusion model, forming a super-resolution method that combines PINN with diffusion generative models.
 
-下面按照 README.md 中的各关键环节，结合项目主要代码文件，一步步解释其内部逻辑。重点放在训练与重建流程如何调用扩散模型及物理梯度（PINN）部分。
+## Training and Reconstruction
 
-### 训练脚本：`train_ddpm/main.py` 与 `functions/losses.py`
+Below, following the key stages in README.md, combined with the project's main code files, we explain its internal logic step by step. The focus is on how the training and reconstruction processes call the diffusion model and the physics gradient (PINN) part.
 
-1. **入口与配置**  
-   - 在 `train_ddpm/main.py` 中，程序通过 `argparse` 或 `yaml` 读取超参（例如 `kmflow_re1000_rs256_conditional.yml` ），包括网络结构参数、迭代轮数、学习率、loss 类型等。  
-   - 读取完成后，会初始化模型（如 `models/diffusion.py` 中的 `Model` 或 `ConditionalModel`），同时注册相应的损失函数，如 `conditional_noise_estimation_loss()`。
+### Training Script: `train_ddpm/main.py` and `functions/losses.py`
 
-2. **物理梯度注入**  
-   - 在 `conditional_noise_estimation_loss()` 中，会根据设定好的概率 `p` 来决定是否调用 `voriticity_residual()` 函数（在同文件或在 `rs256_guided_diffusion.py` 下），计算涡量方程的残差与梯度。  
-   - 一旦引入 `dx`（物理梯度），就会在网络前向传递时一起输入：  
-     ```python
-     model_output = model(x, t.float(), dx=dx)
-     ```
-     这样网络不只要“拟合”训练数据，还要满足 PDE 约束，成为 PINN 化的扩散模型。
+1.  **Entry Point and Configuration**
+    - In `train_ddpm/main.py`, the program reads hyperparameters (e.g., from `kmflow_re1000_rs256_conditional.yml`) through `argparse` or `yaml`, including network structure parameters, number of iterations, learning rate, loss type, etc.
+    - After reading, it initializes the model (e.g., `Model` or `ConditionalModel` from `models/diffusion.py`) and registers the corresponding loss function, such as `conditional_noise_estimation_loss()`.
 
-3. **训练过程**  
-   - 每一步更新包含两部分：  
-     (a) 常规的“噪声预测误差” (diffusion loss)  
-     (b) 与 PDE 残差相关的物理约束  
-   - 最终的梯度通过 `optimizer.step()` 更新 U-Net 权重，实现对“高维噪声 + 物理方程”同步学习。
+2.  **Physics Gradient Injection**
+    - In `conditional_noise_estimation_loss()`, based on the set probability `p`, it decides whether to call the `voriticity_residual()` function (in the same file or under `rs256_guided_diffusion.py`) to calculate the residual and gradient of the vorticity equation.
+    - Once `dx` (physics gradient) is introduced, it will be input together during the network's forward pass:
+      ```python
+      model_output = model(x, t.float(), dx=dx)
+      ```
+      This way, the network not only has to "fit" the training data but also satisfy PDE constraints, becoming a PINN-ified diffusion model.
 
-### 2. 重建脚本：`Example/main.py` 与 `runners/rs256_guided_diffusion.py`
+3.  **Training Process**
+    - Each update step includes two parts:
+      (a) Regular "noise prediction error" (diffusion loss)
+      (b) Physics constraints related to PDE residuals
+    - The final gradient updates the U-Net weights via `optimizer.step()`, achieving simultaneous learning of "high-dimensional noise + physical equations".
 
-1. **超分入口**  
-   - 在 main.py 中，根据 `--config` 指定的 `.yml` 文件，加载已训练好的模型权重（位于 `pretrained_weights/`）。  
-   - 然后调用 `Diffusion.reconstruct()`（在 `rs256_guided_diffusion.py` 里），开始从低分辨率（LR）到高分辨率（HR）的逐步反向扩散采样。
+### 2. Reconstruction Script: `Example/main.py` and `runners/rs256_guided_diffusion.py`
 
-2. **重建循环**  
-   - `reconstruct()` 会先把 LR 数据转换为初始噪声场，然后在每个时间步 `t` 调用 `ddim_steps()` 或 `guided_ddim_steps()`。  
-   - 若是“物理约束”模式，内部会调用：
-     ```python
-     dx_func = lambda x: voriticity_residual(scaler.inverse(x))[0] / scaler.scale()
-     ```  
-     计算物理梯度 `dx` 并把它叠加到扩散更新方程里，使采样结果逐渐符合涡量方程。
+1.  **Super-resolution Entry Point**
+    - In main.py, based on the `.yml` file specified by `--config`, it loads the pre-trained model weights (located in `pretrained_weights/`).
+    - Then it calls `Diffusion.reconstruct()` (in `rs256_guided_diffusion.py`) to start the step-by-step reverse diffusion sampling from low-resolution (LR) to high-resolution (HR).
 
-3. **物理损失记录**  
-   - 在若干步骤后，会计算 `residual_loss`（物理方程残差）与 `l2_loss`（与真值的误差）并输出日志，保存在 `log_dir`，便于监控网络生成的流场既贴近真实数据，也满足 PDE 规律。
+2.  **Reconstruction Loop**
+    - `reconstruct()` first converts LR data into an initial noise field, then calls `ddim_steps()` or `guided_ddim_steps()` at each time step `t`.
+    - If it's in "physics-constrained" mode, it will internally call:
+      ```python
+      dx_func = lambda x: voriticity_residual(scaler.inverse(x))[0] / scaler.scale()
+      ```
+      to calculate the physics gradient `dx` and add it to the diffusion update equation, making the sampling result gradually conform to the vorticity equation.
 
-### 3. 网络结构：`models/unet.py` 与 `models/diffusion.py`
+3.  **Physics Loss Recording**
+    - After several steps, it calculates `residual_loss` (physics equation residual) and `l2_loss` (error with ground truth) and outputs logs, saved in `log_dir`, to monitor that the network-generated flow field is both close to real data and adheres to PDE laws.
 
-1. **U-Net 架构** (`models/unet.py`)  
-   - 负责将输入（随机噪声 + 条件信息）映射到输出（预测噪声/流场修正量）。  
-   - 如果是 `ConditionalModel`，网络会把低分辨率图像或物理梯度当作侧向输入，拼接在特征维度，或通过特定通道传入网络卷积层。
+### 3. Network Structure: `models/unet.py` and `models/diffusion.py`
 
-2. **Diffusion 核心** (`models/diffusion.py`)  
-   - 定义正向噪声添加 (q) 与反向去噪 (p) 过程的关键公式，封装采样/预测步骤。  
-   - 训练时，通过 `losses.py` 计算噪声预测误差。  
-   - 推断或采样时，与 `runners/rs256_guided_diffusion.py` 协同执行迭代生成。
+1.  **U-Net Architecture** (`models/unet.py`)
+    - Responsible for mapping the input (random noise + conditional information) to the output (predicted noise/flow field correction amount).
+    - If it's a `ConditionalModel`, the network will take the low-resolution image or physics gradient as side input, concatenating it in the feature dimension, or passing it into the network's convolutional layers through specific channels.
 
-### 4. PINN 实现：`losses.py` 与 `runners/rs256_guided_diffusion.py` 的 `voriticity_residual()`
+2.  **Diffusion Core** (`models/diffusion.py`)
+    - Defines key formulas for the forward noise addition (q) and reverse denoising (p) processes, encapsulating sampling/prediction steps.
+    - During training, it calculates the noise prediction error via `losses.py`.
+    - During inference or sampling, it coordinates with `runners/rs256_guided_diffusion.py` to perform iterative generation.
 
-1. **涡量残差公式**  
-   - 源自 2D Navier-Stokes 方程下的涡量形式：  
-     wt + (u·∂w/∂x + v·∂w/∂y) - (1/Re)Δw + 0.1·w = 0  (示例)  
-   - 函数会用 `torch.fft.fft2` 计算梯度与拉普拉斯，并得到 `residual = PDE(w)`（在傅里叶空间计算更高效）。  
-   - 最终 `residual` 平方平均（MSE）即为物理违反程 `residual_loss`，Autograd 可以将梯度回溯到输入 `w`。
+### 4. PINN Implementation: `voriticity_residual()` in `losses.py` and `runners/rs256_guided_diffusion.py`
 
-2. **训练 vs. 推断**  
-   - 训练时：在 `conditional_noise_estimation_loss()` 里，`dx` = `voriticity_residual(w)` → 作为一部分梯度信息输入模型；或写进 loss 共同反向传播。  
-   - 推断时：在 `Diffusion.reconstruct()` 设置 `dx_func`，每步生成中都加上 PDE 修正，让采样过程被“纠正”到更合理的物理流场。
+1.  **Vorticity Residual Formula**
+    - Derived from the vorticity form of the 2D Navier-Stokes equations:
+      wt + (u·∂w/∂x + v·∂w/∂y) - (1/Re)Δw + 0.1·w = 0 (Example)
+    - The function uses `torch.fft.fft2` to calculate gradients and Laplacians, and obtains `residual = PDE(w)` (calculation is more efficient in Fourier space).
+    - Finally, the mean squared `residual` (MSE) is the physics violation `residual_loss`, and Autograd can backpropagate the gradient to the input `w`.
 
-### 总结
+2.  **Training vs. Inference**
+    - During training: In `conditional_noise_estimation_loss()`, `dx` = `voriticity_residual(w)` → is input to the model as part of the gradient information; or written into the loss for joint backpropagation.
+    - During inference: In `Diffusion.reconstruct()`, `dx_func` is set, and PDE correction is added in each generation step, "correcting" the sampling process towards a more physically plausible flow field.
 
-- **训练脚本 (`train_ddpm/main.py` + `functions/losses.py`)**  
-  同时学习数据分布的去噪（扩散）与物理约束（涡量方程），在网络梯度里显式考虑 PDE。  
-- **推断脚本 (`Example/main.py` + `runners/rs256_guided_diffusion.py`)**  
-  从低分辨率流场出发，反向扩散到高分辨率；若启用 PINN，则每一步都调用 `voriticity_residual()` 获取物理梯度辅助生成。  
-- **网络 (`models/unet.py` + `models/diffusion.py`)**  
-  提供 U-Net 结构与扩散公式；`ConditionalModel` 允许将物理信息/低分辨率图像等作为条件输入。  
-- **物理残差 (`voriticity_residual()`)**  
-  通过傅里叶变换实现高效 PDE 计算；训练和采样都可用，形成 PINN 核心。
+### Summary
 
-这样就从配置文件加载、网络训练、到推断重建的全流程，较为完整地结合了「扩散模型 + PINN」的思想和实现细节。希望有助于更深入地理解并复现该项目。
+- **Training Script (`train_ddpm/main.py` + `functions/losses.py`)**
+  Simultaneously learns denoising of the data distribution (diffusion) and physical constraints (vorticity equation), explicitly considering PDEs in the network gradient.
+- **Inference Script (`Example/main.py` + `runners/rs256_guided_diffusion.py`)**
+  Starts from a low-resolution flow field, reverse diffuses to high-resolution; if PINN is enabled, `voriticity_residual()` is called at each step to obtain a physics gradient to aid generation.
+- **Network (`models/unet.py` + `models/diffusion.py`)**
+  Provides U-Net structure and diffusion formulas; `ConditionalModel` allows physical information/low-resolution images, etc., as conditional input.
+- **Physics Residual (`voriticity_residual()`)**
+  Achieves efficient PDE calculation through Fourier transform; usable for both training and sampling, forming the core of PINN.
 
-## 参考文献
-如果您在研究中发现此代码库有用，请引用以下工作：
-```
+This provides a fairly complete overview of the entire process from configuration loading, network training, to inference and reconstruction, integrating the ideas and implementation details of "Diffusion Model + PINN". Hopefully, this helps in a deeper understanding and reproduction of the project.
+
+## References
+If you find this codebase useful in your research, please cite the following work:
+```bibtex
 @article{shu2023physics,
   title={A Physics-informed Diffusion Model for High-fidelity Flow Field Reconstruction},
   author={Shu, Dule and Li, Zijie and Farimani, Amir Barati},
@@ -481,9 +483,25 @@ python main.py --config kmflow_re1000_rs256.yml --seed 1234 --sample_step 1 --t 
 }
 ```
 
-本实现基于/受到以下工作的启发：
+This implementation is based on/inspired by the following works:
 
-- [https://github.com/ermongroup/SDEdit](https://github.com/ermongroup/SDEdit) (SDEdit: 基于随机微分方程的引导图像合成与编辑)
-- [https://github.com/ermongroup/ddim](https://github.com/ermongroup/ddim) (去噪扩散隐式模型)
+- [https://github.com/ermongroup/SDEdit](https://github.com/ermongroup/SDEdit) (SDEdit: Guided Image Synthesis and Editing with Stochastic Differential Equations)
+- [https://github.com/ermongroup/ddim](https://github.com/ermongroup/ddim) (Denoising Diffusion Implicit Models)
 
-*这个阅读log在`Reconstruction Log.md`里面*
+Some other works are also good to learn. For researchers engaged in multimodal reconstruction tasks, cross-disciplinary consultation of remote sensing literature may yield methodological insights, as techniques from adjacent domains often demonstrate transferable applicability.:
+
+```bibtex
+ @article{Fukami_Fukagata_Taira_2019, title={Super-resolution reconstruction of turbulent flows with machine learning}, volume={870}, rights={https://www.cambridge.org/core/terms}, ISSN={0022-1120, 1469-7645}, DOI={10.1017/jfm.2019.238}, abstractNote={We use machine learning to perform super-resolution analysis of grossly under-resolved turbulent flow field data to reconstruct the high-resolution flow field. Two machine learning models are developed, namely, the convolutional neural network (CNN) and the hybrid downsampled skip-connection/multi-scale (DSC/MS) models. These machine learning models are applied to a two-dimensional cylinder wake as a preliminary test and show remarkable ability to reconstruct laminar flow from low-resolution flow field data. We further assess the performance of these models for two-dimensional homogeneous turbulence. The CNN and DSC/MS models are found to reconstruct turbulent flows from extremely coarse flow field images with remarkable accuracy. For the turbulent flow problem, the machine-leaning-based super-resolution analysis can greatly enhance the spatial resolution with as little as 50 training snapshot data, holding great potential to reveal subgrid-scale physics of complex turbulent flows. With the growing availability of flow field data from high-fidelity simulations and experiments, the present approach motivates the development of effective super-resolution models for a variety of fluid flows.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Engineering Technology Q2 Impact Factor: 3.6 5-Year Impact Factor: 3.9 EI: Yes NAU High Quality: A}, journal={Journal of Fluid Mechanics}, author={Fukami, Kai and Fukagata, Koji and Taira, Kunihiko}, year={2019}, month=jul, pages={106–120}, language={en} }
+ @article{Fukami_Fukagata_Taira_2021, title={Machine-learning-based spatio-temporal super resolution reconstruction of turbulent flows}, volume={909}, ISSN={0022-1120, 1469-7645}, DOI={10.1017/jfm.2020.948}, abstractNote={Abstract, We present a new data reconstruction method with supervised machine learning techniques inspired by super resolution and inbetweening to recover high-resolution turbulent flows from grossly coarse flow data in space and time. For the present machine-learning-based data reconstruction, we use the downsampled skip-connection/multiscale model based on a convolutional neural network, incorporating the multiscale nature of fluid flows into its network structure. As an initial example, the model is applied to the two-dimensional cylinder wake at $Re_D = 100$. The reconstructed flow fields by the present method show great agreement with the reference data obtained by direct numerical simulation. Next, we apply the current model to a two-dimensional decaying homogeneous isotropic turbulence. The machine-learned model is able to track the decaying evolution from spatial and temporal coarse input data. The proposed concept is further applied to a complex turbulent channel flow over a three-dimensional domain at $Re_{tau }=180$. The present model reconstructs high-resolved turbulent flows from very coarse input data in space, and also reproduces the temporal evolution for appropriately chosen time interval. The dependence on the number of training snapshots and duration between the first and last frames based on a temporal two-point correlation coefficient are also assessed to reveal the capability and robustness of spatio-temporal super resolution reconstruction. These results suggest that the present method can perform a range of flow reconstructions in support of computational and experimental efforts.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Engineering Technology Q2 Impact Factor: 3.6 5-Year Impact Factor: 3.9 EI: Yes NAU High Quality: A}, journal={Journal of Fluid Mechanics}, author={Fukami, Kai and Fukagata, Koji and Taira, Kunihiko}, year={2021}, month=feb, pages={A9}, language={en} }
+ @article{Fukami_Fukagata_Taira_2023, title={Super-resolution analysis via machine learning: A survey for fluid flows}, volume={37}, ISSN={0935-4964, 1432-2250}, DOI={10.1007/s00162-023-00663-0}, abstractNote={This paper surveys machine-learning-based super-resolution reconstruction for vortical ﬂows. Super resolution aims to ﬁnd the high-resolution ﬂow ﬁelds from low-resolution data and is generally an approach used in image reconstruction. In addition to surveying a variety of recent super-resolution applications, we provide case studies of super-resolution analysis for an example of two-dimensional decaying isotropic turbulence. We demonstrate that physics-inspired model designs enable successful reconstruction of vortical ﬂows from spatially limited measurements. We also discuss the challenges and outlooks of machine-learning-based superresolution analysis for ﬂuid ﬂow applications. The insights gained from this study can be leveraged for superresolution analysis of numerical and experimental ﬂow data.}, note={JCR Ranking: Q2 CAS Ranking (Upgraded Version): Engineering Technology Q3 Impact Factor: 2.2 5-Year Impact Factor: 2.5 EI: Yes NAU High Quality: B}, number={4}, journal={Theoretical and Computational Fluid Dynamics}, author={Fukami, Kai and Fukagata, Koji and Taira, Kunihiko}, year={2023}, month=aug, pages={421–444}, language={en} }
+ @inproceedings{Huang_Ren_Yang_Wang_Wei_2024, address={Vienna, Austria}, series={ICML’24}, title={MFTN: A multi-scale feature transfer network based on imatchformer for hyperspectral image super-resolution}, volume={235}, abstractNote={Hyperspectral image super-resolution (HISR) aims to fuse a low-resolution hyperspectral image (LR-HSI) with a high-resolution multispectral image (HR-MSI) to obtain a high-resolution hyperspectral image (HR-HSI). Due to some existing HISR methods ignoring the significant feature difference between LR-HSI and HR-MSI, the reconstructed HR-HSI typically exhibits spectral distortion and blurring of spatial texture. To solve this issue, we propose a multi-scale feature transfer network (MFTN) for HISR. Firstly, three multi-scale feature extractors are constructed to extract features of different scales from the input images. Then, a multi-scale feature transfer module (MFTM) consisting of three improved feature matching Transformers (IMatchFormers) is designed to learn the detail features of different scales from HR-MSI by establishing the crossmodel feature correlation between LR-HSI and degraded HR-MSI. Finally, a multiscale dynamic aggregation module (MDAM) containing three spectral aware aggregation modules (SAAMs) is constructed to reconstruct the final HR-HSI by gradually aggregating features of different scales. Extensive experimental results on three commonly used datasets demonstrate that the proposed model achieves better performance compared to state- of-the-art (SOTA) methods.}, booktitle={Proceedings of the 41st International Conference on Machine Learning}, publisher={JMLR.org}, author={Huang, Shuying and Ren, Mingyang and Yang, Yong and Wang, Xiaozheng and Wei, Yingzhi}, year={2024}, month=jul, pages={20063–20072}, collection={ICML’24}, language={en-US} }
+ @article{Kochkov_Smith_Alieva_Wang_Brenner_Hoyer_2021, title={Machine learning–accelerated computational fluid dynamics}, volume={118}, ISSN={0027-8424, 1091-6490}, DOI={10.1073/pnas.2101784118}, abstractNote={Significance Accurate simulation of fluids is important for many science and engineering problems but is very computationally demanding. In contrast, machine-learning models can approximate physics very quickly but at the cost of accuracy. Here we show that using machine learning inside traditional fluid simulations can improve both accuracy and speed, even on examples very different from the training data. Our approach opens the door to applying machine learning to large-scale physical modeling tasks like airplane design and climate prediction., Numerical simulation of fluids plays an essential role in modeling many physical phenomena, such as weather, climate, aerodynamics, and plasma physics. Fluids are well described by the Navier–Stokes equations, but solving these equations at scale remains daunting, limited by the computational cost of resolving the smallest spatiotemporal features. This leads to unfavorable trade-offs between accuracy and tractability. Here we use end-to-end deep learning to improve approximations inside computational fluid dynamics for modeling two-dimensional turbulent flows. For both direct numerical simulation of turbulence and large-eddy simulation, our results are as accurate as baseline solvers with 8 to 10× finer resolution in each spatial dimension, resulting in 40- to 80-fold computational speedups. Our method remains stable during long simulations and generalizes to forcing functions and Reynolds numbers outside of the flows where it is trained, in contrast to black-box machine-learning approaches. Our approach exemplifies how scientific computing can leverage machine learning and hardware accelerators to improve simulations without sacrificing accuracy or generalization.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Comprehensive Journals Q1 Impact Factor: 9.4 5-Year Impact Factor: 10.8}, number={21}, journal={Proceedings of the National Academy of Sciences}, author={Kochkov, Dmitrii and Smith, Jamie A. and Alieva, Ayya and Wang, Qing and Brenner, Michael P. and Hoyer, Stephan}, year={2021}, month=may, pages={e2101784118}, language={en} }
+ @inproceedings{Noman_Naseer_Cholakkal_Anwar_Khan_Khan_2024, title={Rethinking transformers pre-training for multi-spectral satellite imagery}, ISSN={2575-7075}, url={https://ieeexplore.ieee.org/document/10657832/}, DOI={10.1109/CVPR52733.2024.02627}, abstractNote={Recent advances in unsupervised learning have demonstrated the ability of large vision models to achieve promising results on downstream tasks by pre-training on large amount of unlabelled data. Such pre-training techniques have also been explored recently in the remote sensing domain due to the availability of large amount of unlabelled data. Different from standard natural image datasets, remote sensing data is acquired from various sensor technologies and exhibit diverse range of scale variations as well as modalities. Existing satellite image pre-training methods either ignore the scale information present in the remote sensing imagery or restrict themselves to use only a single type of data modality. In this paper, we re-visit transformers pre-training and leverage multi-scale information that is effectively utilized with multiple modalities. Our proposed approach, named SatMAE++, performs multi-scale pre-training and utilizes convolution based upsampling blocks to reconstruct the image at higher scales making it extensible to include more scales. Compared to existing works, the proposed SatMAE++ with multi-scale pre-training is equally effective for both optical as well as multi-spectral imagery. Extensive experiments on six datasets reveal the merits of proposed contributions, leading to state-of-the-art performance on all datasets. Sat-MAE++ achieves mean average precision (mAP) gain of 2.5% for multi-label classification task on BigEarthNet dataset. Our code and pre-trained models are available at https://github.com/techmn/satmae_pp.}, booktitle={2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, author={Noman, Mubashir and Naseer, Muzammal and Cholakkal, Hisham and Anwar, Rao Muhammad and Khan, Salman and Khan, Fahad Shahbaz}, year={2024}, month=jun, pages={27811–27819}, language={en-US} }
+ @article{Shu_Li_Barati Farimani_2023, title={A physics-informed diffusion model for high-fidelity flow field reconstruction}, volume={478}, ISSN={00219991}, DOI={10.1016/j.jcp.2023.111972}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Physics and Astrophysics Q2 Impact Factor: 3.8 5-Year Impact Factor: 4.5 EI: Yes NAU High Quality: A}, journal={Journal of Computational Physics}, author={Shu, Dule and Li, Zijie and Barati Farimani, Amir}, year={2023}, month=apr, pages={111972}, language={en} }
+ @article{Sofos_Drikakis_2025, title={A review of deep learning for super-resolution in fluid flows}, volume={37}, ISSN={1070-6631}, DOI={10.1063/5.0265738}, abstractNote={Integrating deep learning with fluid dynamics presents a promising path for advancing the comprehension of complex flow phenomena within both theoretical and practical engineering domains. Despite this potential, considerable challenges persist, particularly regarding the calibration and training of deep learning models. This paper conducts an extensive review and analysis of recent developments in deep learning architectures that aim to enhance the accuracy of fluid flow data interpretation. It investigates various applications, architectural designs, and performance evaluation metrics. The analysis covers several models, including convolutional neural networks, generative adversarial networks, physics-informed neural networks, transformer models, diffusion models, and reinforcement learning frameworks, emphasizing components improving reconstruction capabilities. Standard performance metrics are employed to rigorously evaluate the models’ reliability and efficacy in producing high-performance results applicable across spatiotemporal flow data. The findings emphasize the essential role of deep learning in representing fluid flows and address ongoing challenges related to the systems’ high degrees of freedom, precision demands, and resilience to error.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Engineering Technology Q2 Impact Factor: 4.1 5-Year Impact Factor: 4.1 EI: Yes NAU High Quality: A}, number={4}, journal={Physics of Fluids}, author={Sofos, Filippos (Φίλιππος Σοφός) and Drikakis, Dimitris (Δημήτρης Δρικάκης)}, year={2025}, month=apr, pages={041303} }
+ @article{Tang_Li_Zhao_Xiao_Chen_2024, title={Super-resolution reconstruction of wind fields with a swin-transformer-based deep learning framework}, volume={36}, ISSN={1070-6631, 1089-7666}, DOI={10.1063/5.0237112}, abstractNote={Integrating deep learning with fluid dynamics presents a promising path for advancing the comprehension of complex flow phenomena within both theoretical and practical engineering domains. Despite this potential, considerable challenges persist, particularly regarding the calibration and training of deep learning models. This paper conducts an extensive review and analysis of recent developments in deep learning architectures that aim to enhance the accuracy of fluid flow data interpretation. It investigates various applications, architectural designs, and performance evaluation metrics. The analysis covers several models, including convolutional neural networks, generative adversarial networks, physics-informed neural networks, transformer models, diffusion models, and reinforcement learning frameworks, emphasizing components improving reconstruction capabilities. Standard performance metrics are employed to rigorously evaluate the models’ reliability and efficacy in producing high-performance results applicable across spatiotemporal flow data. The findings emphasize the essential role of deep learning in representing fluid flows and address ongoing challenges related to the systems’ high degrees of freedom, precision demands, and resilience to error.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Engineering Technology Q2 Impact Factor: 4.1 5-Year Impact Factor: 4.1 EI: Yes NAU High Quality: A}, number={12}, journal={Physics of Fluids}, author={Tang, Lingxiao and Li, Chao and Zhao, Zihan and Xiao, Yiqing and Chen, Shenpeng}, year={2024}, month=dec, pages={125110}, language={en} }
+ @article{Yang_Yang_Deng_He_2024, title={Moving sampling physics-informed neural networks induced by moving mesh PDE}, url={http://arxiv.org/abs/2311.16167}, DOI={10.48550/arXiv.2311.16167}, abstractNote={In this work, we propose an end-to-end adaptive sampling neural network (MMPDE-Net) based on the moving mesh method, which can adaptively generate new sampling points by solving the moving mesh PDE. This model focuses on improving the quality of sampling points generation. Moreover, we develop an iterative algorithm based on MMPDE-Net, which makes the sampling points more precise and controllable. Since MMPDE-Net is a framework independent of the deep learning solver, we combine it with physics-informed neural networks (PINN) to propose moving sampling PINN (MS-PINN) and demonstrate its effectiveness by error analysis under some assumptions. Finally, we demonstrate the performance improvement of MS-PINN compared to PINN through numerical experiments of four typical examples, which numerically verify the effectiveness of our method.}, note={arXiv:2311.16167 [math]}, number={arXiv:2311.16167}, publisher={arXiv}, author={Yang, Yu and Yang, Qihong and Deng, Yangtao and He, Qiaolin}, year={2024}, month=jun }
+ @article{Yousif_Yu_Lim_2021, title={High-fidelity reconstruction of turbulent flow from spatially limited data using enhanced super-resolution generative adversarial network}, volume={33}, ISSN={1070-6631, 1089-7666}, DOI={10.1063/5.0066077}, abstractNote={In this study, a deep learning-based approach is applied with the aim of reconstructing high-resolution turbulent flow fields using minimal flow field data. A multi-scale enhanced super-resolution generative adversarial network with a physics-based loss function is introduced as a model to reconstruct the high-resolution flow fields. The model capability to reconstruct high-resolution laminar flows is examined using direct numerical simulation data of laminar flow around a square cylinder. The results reveal that the model can accurately reproduce the high-resolution flow fields even when limited spatial information is provided. The DNS data of turbulent channel flow at two friction Reynolds numbers Reτ=180 and 550 are used to assess the ability of the model to reconstruct the high-resolution wall-bounded turbulent flow fields. The instantaneous and statistical results obtained from the model agree well with the ground truth data, indicating that the model can successfully learn to map the coarse flow fields to the high-resolution ones. Furthermore, the possibility of performing transfer learning for the case of turbulent channel flow is thoroughly examined. The results indicate that the amount of the training data and the time required for training can be effectively reduced without affecting the performance of the model. The computational cost of the proposed model is also found to be effectively low. These results demonstrate that using high-fidelity training data with physics-guided generative adversarial network-based models can be practically efficient in reconstructing high-resolution turbulent flow fields from extremely coarse data.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Engineering Technology Q2 Impact Factor: 4.1 5-Year Impact Factor: 4.1 EI: Yes NAU High Quality: A}, number={12}, journal={Physics of Fluids}, author={Yousif, Mustafa Z. and Yu, Linqi and Lim, Hee-Chang}, year={2021}, month=dec, pages={125119}, language={en} }
+ @article{Zhang_Lei_Xie_Fang_Li_Du_2023, title={SuperYOLO: Super resolution assisted object detection in multimodal remote sensing imagery}, volume={61}, rights={https://ieeexplore.ieee.org/Xplorehelp/downloads/license-information/IEEE.html}, ISSN={0196-2892, 1558-0644}, DOI={10.1109/TGRS.2023.3258666}, abstractNote={Accurately and timely detecting multiscale small objects that contain tens of pixels from remote sensing images (RSI) remains challenging. Most of the existing solutions primarily design complex deep neural networks to learn strong feature representations for objects separated from the background, which often results in a heavy computation burden. In this article, we propose an accurate yet fast object detection method for RSI, named SuperYOLO, which fuses multimodal data and performs high-resolution (HR) object detection on multiscale objects by utilizing the assisted super resolution (SR) learning and considering both the detection accuracy and computation cost. First, we utilize a symmetric compact multimodal fusion (MF) to extract supplementary information from various data for improving small object detection in RSI. Furthermore, we design a simple and flexible SR branch to learn HR feature representations that can discriminate small objects from vast backgrounds with low-resolution (LR) input, thus further improving the detection accuracy. Moreover, to avoid introducing additional computation, the SR branch is discarded in the inference stage, and the computation of the network model is reduced due to the LR input. Experimental results show that, on the widely used VEDAI RS dataset, SuperYOLO achieves an accuracy of 75.09% (in terms of mAP50), which is more than 10% higher than the SOTA large models, such as YOLOv5l, YOLOv5x, and RS designed YOLOrs. Meanwhile, the parameter size and GFLOPs of SuperYOLO are about 18× and 3.8× less than YOLOv5x. Our proposed model shows a favorable accuracy–speed tradeoff compared to the state-of-theart models. The code will be open-sourced at https://github.com/ icey-zhang/SuperYOLO.}, note={JCR Ranking: Q1 CAS Ranking (Upgraded Version): Earth Sciences Q1 Impact Factor: 7.5 5-Year Impact Factor: 7.6 EI: Yes NAU High Quality: A}, journal={IEEE Transactions on Geoscience and Remote Sensing}, author={Zhang, Jiaqing and Lei, Jie and Xie, Weiying and Fang, Zhenman and Li, Yunsong and Du, Qian}, year={2023}, pages={1–15}, language={en} }
+ @inproceedings{Zhu_Park_Isola_Efros_2017, address={Venice}, title={Unpaired image-to-image translation using cycle-consistent adversarial networks}, ISBN={978-1-5386-1032-9}, url={http://ieeexplore.ieee.org/document/8237506/}, DOI={10.1109/ICCV.2017.244}, booktitle={2017 IEEE International Conference on Computer Vision (ICCV)}, publisher={IEEE}, author={Zhu, Jun-Yan and Park, Taesung and Isola, Phillip and Efros, Alexei A.}, year={2017}, month=oct, pages={2242–2251} }
+```
